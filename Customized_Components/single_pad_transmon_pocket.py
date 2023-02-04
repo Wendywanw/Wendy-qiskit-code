@@ -101,7 +101,7 @@ class TransmonPocket_Single(BaseQubit):
         pad_height='90um',
         pocket_width='650um',
         # pocket_height='650um',
-        pad_pocket_distance_top = '20um',
+        pad_pocket_distance_top = '15um',
         jj_length = '40um',
         jj_overlap = '5um',
 
