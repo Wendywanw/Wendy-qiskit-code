@@ -103,7 +103,7 @@ class TransmonPocket_Single(BaseQubit):
         # pocket_height='650um',
         pad_pocket_distance_top = '15um',
         jj_length = '40um',
-        jj_overlap = '5um',
+        jj_overlap = '0um',
 
         # 90 has dipole aligned along the +X axis,
         # while 0 has dipole aligned along the +Y axis
