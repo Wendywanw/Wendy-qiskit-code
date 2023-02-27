@@ -132,7 +132,7 @@ class QAnsysRenderer(QRendererAnalysis):
         # bounding_box_scale_y = 1.2, # Ratio of 'main' chip length to bounding box length
         x_buffer_width_mm=0.2,  # Buffer between max/min x and edge of ground plane, in mm
         y_buffer_width_mm=0.2,  # Buffer between max/min y and edge of ground plane, in mm
-        wb_threshold = '400um',
+        wb_threshold = '200um',
         wb_offset = '0um',
         wb_size = 1.5,
         wb_height = 0.7,
