@@ -51,7 +51,7 @@ def transmon_freq(Cq, Lj):
     return(fq.to(u.GHz), alpha.to(u.MHz))
 
 def freq_from_cap(cap, Lj = 13*u.nH):
-    Ec = (c.e.si**2/2/Cq).to(u.J)
+    Ec = (c.e.si**2/2/cap).to(u.J)
     Ej = ((phi0/2/np.pi)**2/Lj).to(u.J)
     # epsilon1 = -Ec*2**9
     wq = (np.sqrt(8*Ej*Ec)-Ec)/c.hbar
@@ -72,10 +72,9 @@ def slice_dict(n,anchor):
         res[i] = anchor[i]
     return res
 
-def pins_for_spiral(radius,gap,n,dis = (0,0), r = np.inf, right = True):
+def pins_for_spiral(radius,gap,n,dis = (0,0), r = np.inf, right = True, last_offset = 0):
     spiral_list = OrderedDict()
     x,y = dis
-    print('1',x,y)
     i = 0
     if right:
         for step in range(n):
@@ -98,10 +97,15 @@ def pins_for_spiral(radius,gap,n,dis = (0,0), r = np.inf, right = True):
         spiral_list[step*4+4] = np.array([point_value, point_value])
     
     final_list = slice_dict(r,spiral_list)
+    i = len(final_list)
+    x = final_list[i-1][0]
+    y = final_list[i-1][1]
+    x -= last_offset
+    final_list[i-1] = (x,y)
     
     return(final_list)
 
-def anchor_CPW(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = np.Inf, right = True):
+def anchor_CPW(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = np.Inf, right = True, last_offset = 0):
     pocket_width = design.parse_value(qubit.options['pocket_width'])*u.mm
     cpad_height = design.parse_value(qubit.options['pad_height'])*u.mm
     distance_top = design.parse_value(qubit.options['pad_pocket_distance_top'])*u.mm
@@ -114,7 +118,7 @@ def anchor_CPW(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = n
     y =design.parse_value(qubit.options['pos_y'])
     
     
-    anchors = pins_for_spiral(wrap_r.value, wrap_gap, n, dis = (x,y), right = right, r = r)
+    anchors = pins_for_spiral(wrap_r.value, wrap_gap, n, dis = (x,y), right = right, r = r, last_offset = last_offset)
     return anchors
 
 def find_wrap_size(qubit: designs.QDesign, buffer):
@@ -130,7 +134,7 @@ def find_total_len(cpw, qubit, TQ1, count_extend = False):
     pocket_width = design.parse_value(qubit.options['pocket_width'])*u.mm
     cpad_height = design.parse_value(qubit.options['pad_height'])*u.mm
     gap = (pocket_width-cpad_height)/2
-    TQs = TQ1.options['down_length'] + '+' + TQ1.options['coupling_length'] + '+' + TQ1.options['down_length']
+    TQs = TQ1.options['down_length'] + '+' + TQ1.options['coupling_length'] #+ '+' + TQ1.options['down_length']
     
     if count_extend:
         QBextended = qubit.options['connection_pads']['a']['pad_width'] + '+'+ qubit.options['connection_pads']['a']['cpw_extend']
@@ -138,5 +142,33 @@ def find_total_len(cpw, qubit, TQ1, count_extend = False):
         QBextended = '0'
         
     cpw_length = gap + cpw.length*u.mm + design.parse_value(TQs  + '+' + QBextended )*u.mm
+    
+    return(cpw_length)
+
+def find_connector_coord(qubit: designs.QDesign, loc_x = 1, loc_y = 1):
+    pocket_width = design.parse_value(qubit.options['pocket_width'])*u.mm
+    pad_width = design.parse_value(qubit.options['pad_width'])*u.mm
+    gap = (pocket_width-pad_width)/2
+    cpad_height = design.parse_value(qubit.options['pad_height'])*u.mm
+    distance_top = design.parse_value(qubit.options['pad_pocket_distance_top'])*u.mm
+    jj_len = design.parse_value(qubit.options['jj_length'])*u.mm
+    pocket_height = cpad_height + distance_top + jj_len
+    pos_x = design.parse_value(qubit.options['pos_x'])*u.mm
+    pos_y = design.parse_value(qubit.options['pos_y'])*u.mm
+    
+    extend = qubit.options['connection_pads']['a']['pad_width']
+    extend = design.parse_value(extend)*u.mm + gap
+    
+    x = (pocket_width/2-extend)*loc_x
+    y = (pocket_height/2-distance_top/2)*loc_y
+    
+    x += pos_x
+    y += pos_y
+    return (x,y)
+
+def find_total_len_nqb(cpw, TQ1):
+    TQs = TQ1.options['down_length'] + '+' + TQ1.options['coupling_length']
+        
+    cpw_length = cpw.length*u.mm + design.parse_value(TQs)*u.mm
     
     return(cpw_length)
