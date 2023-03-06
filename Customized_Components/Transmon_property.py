@@ -1,6 +1,9 @@
+from collections import OrderedDict
+from qiskit_metal import designs
+import astropy.constants as c
 import astropy.units as u
 import numpy as np
-import astropy.constants as c
+import qiskit_metal.analyses as analyses
 import scipy.optimize as optimize
 
 # define constants for LL designs
@@ -12,8 +15,6 @@ W_jj = 200*u.nm #junction width
 phi0 = c.h/2/c.e.si
 T = 30*u.mK
 
-import qiskit_metal.analyses as analyses
-from qiskit_metal import designs
 design = designs.DesignPlanar({}, True)
 
 def find_guided_wavelength(freq, line_width, line_gap):
@@ -59,8 +60,21 @@ def freq_from_cap(cap, Lj = 13*u.nH):
     alpha = Ec/c.h
     return fq, (wq, alpha)
 
-import numpy as np
-from collections import OrderedDict
+# class Trans:
+#     def __init__(self, cq, lj):
+#         self.cq = cq
+#         self.lj = lj
+#         self.ec = (c.e.si**2/2/self.cq).to(u.J)
+#         self.ej = ((phi0/2/np.pi)**2/self.lj).to(u.J)
+#         self.wq = (np.sqrt(8*self.ej*self.ec)-self.ec)/c.hbar
+    
+#     def transmon_freq(self):
+#         fq = self.wq/2/np.pi
+#         alpha = self.ec/c.h
+#         return(fq.to(u.GHz), alpha.to(u.MHz))
+
+#     def interact(self, trans):
+        
 
 def slice_dict(n,anchor):
     res = OrderedDict()
