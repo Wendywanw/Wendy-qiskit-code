@@ -134,7 +134,7 @@ class QAnsysRenderer(QRendererAnalysis):
         y_buffer_width_mm=0.2,  # Buffer between max/min y and edge of ground plane, in mm
         wb_threshold = '200um',
         wb_offset = '0um',
-        wb_size = 1.5,
+        wb_size = 1.6,
         wb_height = 0.7,
         plot_ansys_fields_options = Dict(
             name="NAME:Mag_E1",
