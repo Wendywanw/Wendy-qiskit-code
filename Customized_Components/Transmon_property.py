@@ -34,6 +34,13 @@ def find_guided_wavelength(freq, line_width, line_gap):
     return target_length
 
 def find_actual_frequency(length, line_width, line_gap, qwave = True):
+    '''
+    Finds the frequency corresponding to the CPW 
+    length:  astropy quantity that is the length of CPW
+    line_width: astropy quantity that is the center pin width of the CPW
+    line_gap: astropy quantity that is the gap between the center pin and the ground plane
+    q_wave: boolean, true of it is quarter wavelength resonator. False means it is half wave resonator
+    '''
     freq =  7*u.GHz
     len = find_guided_wavelength(freq, line_width, line_gap)
     if qwave:
@@ -43,6 +50,10 @@ def find_actual_frequency(length, line_width, line_gap, qwave = True):
     return frequency.to(u.GHz)
 
 def transmon_freq(Cq, Lj):
+    '''
+    Cq: astropy quantity object, capacitance of transmon to ground
+    Lj: astropy quantity object, inductance of the transmon junction
+    '''
     Ec = (c.e.si**2/2/Cq).to(u.J)
     Ej = ((phi0/2/np.pi)**2/Lj).to(u.J)
     # epsilon1 = -Ec*2**9
@@ -145,6 +156,12 @@ def find_wrap_size(qubit: designs.QDesign, buffer):
     return wrap_r.to(u.mm).value
 
 def find_total_len(cpw, qubit, TQ1, count_extend = False):
+    '''
+    cpw: takes in qiskit design object that is the constructed CPW
+    qubit: takes in qiskit design object that is the qubit
+    TQ!: qiskit design object that is the coupled line tee
+    count_extend: if we want to count extend of the CPW into the pocket
+    '''
     pocket_width = design.parse_value(qubit.options['pocket_width'])*u.mm
     cpad_height = design.parse_value(qubit.options['pad_height'])*u.mm
     gap = (pocket_width-cpad_height)/2
