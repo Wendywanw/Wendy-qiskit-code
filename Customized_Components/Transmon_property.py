@@ -130,6 +130,31 @@ def pins_for_spiral(radius,gap,n,dis = (0,0), r = np.inf, right = True, last_off
     
     return(final_list)
 
+def pins_for_spiral_round(radius,gap,n,dis = (0,0), r = np.inf, right = True, last_offset = 0):
+    spiral_list = OrderedDict()
+    x,y = dis
+    i = 0
+    if right:
+        for step in range(n):
+            point_value = radius / 2 + step * (0 + gap)
+            spiral_list[step*4] = np.array([x+point_value, y+point_value])
+            spiral_list[step*4+1] = np.array([x+point_value, y-point_value])
+            spiral_list[step*4+2] = np.array([x-point_value, y-point_value])
+            spiral_list[step*4+3] = np.array([x-point_value, y+point_value])
+
+        # point_value = radius / 2 + (step + 1) * (0 + gap)
+    else:
+        for step in range(n):
+            point_value = radius / 2 + step * (0 + gap)
+            spiral_list[step*4] = np.array([x-point_value, y+point_value])
+            spiral_list[step*4+1] = np.array([x-point_value, y-point_value])
+            spiral_list[step*4+2] = np.array([x+point_value, y-point_value])
+            spiral_list[step*4+3] = np.array([x+point_value + (0 + gap), y+point_value])
+    
+    final_list = slice_dict(r,spiral_list)
+    
+    return(final_list)
+
 def anchor_CPW(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = np.Inf, right = True, last_offset = 0):
     pocket_width = design.parse_value(qubit.options['pocket_width'])*u.mm
     cpad_height = design.parse_value(qubit.options['pad_height'])*u.mm
@@ -144,6 +169,22 @@ def anchor_CPW(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = n
     
     
     anchors = pins_for_spiral(wrap_r.value, wrap_gap, n, dis = (x,y), right = right, r = r, last_offset = last_offset)
+    return anchors
+
+def anchor_CPW_round(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = np.Inf, right = True, last_offset = 0):
+    pocket_width = design.parse_value(qubit.options['pocket_width'])*u.mm
+    cpad_height = design.parse_value(qubit.options['pad_height'])*u.mm
+    distance_top = design.parse_value(qubit.options['pad_pocket_distance_top'])*u.mm
+    jj_len = design.parse_value(qubit.options['jj_length'])*u.mm
+    pocket_height = cpad_height + distance_top + jj_len
+    
+    wrap_r = max(pocket_width,pocket_height)+buffer
+    
+    x =design.parse_value(qubit.options['pos_x'])
+    y =design.parse_value(qubit.options['pos_y'])
+    
+    
+    anchors = pins_for_spiral_round(wrap_r.value, wrap_gap, n, dis = (x,y), right = right, r = r, last_offset = last_offset)
     return anchors
 
 def find_wrap_size(qubit: designs.QDesign, buffer):
