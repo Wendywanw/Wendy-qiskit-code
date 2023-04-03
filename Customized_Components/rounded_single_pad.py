@@ -331,7 +331,7 @@ class Round_TransmonPocket_Single(BaseQubit):
             y = p.pos_y
             ys = y+p.pad_height/2+p.pad_pocket_distance_top
             self.add_pin(name,
-                     points=[[x,ys-pc.cpw_extend/2],[x,ys+pc.cpw_extend/2]],
+                     points=[[x,ys-pc.cpw_extend/2-0.0001],[x,ys+pc.cpw_extend/2]],
                      width=cpw_width,
                      input_as_norm=True,
                      chip=chip)
