@@ -131,7 +131,7 @@ def pins_for_spiral(radius,gap,n,dis = (0,0), r = np.inf, right = True, last_off
     return(final_list)
 
 def pins_for_spiral_round(radius,gap,n,dis = (0,0), r = np.inf, small = False, right = True, last_offset = 0):
-    spiral_list = trans_p.OrderedDict()
+    spiral_list = OrderedDict()
     x,y = dis
     i = 0
     if right:
