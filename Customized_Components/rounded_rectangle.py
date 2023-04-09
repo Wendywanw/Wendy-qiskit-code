@@ -171,3 +171,47 @@ def rounded_rec_only(width, height, radius, resolution = 5, connection = False,c
         rounded_rec = draw.rotate(rounded_rec,connection_direction,overwrite= True, origin=(0,0))
     return rounded_rec
     # rounded_rec = draw.translate(rounded_rec,p.pos_x,p.pos_y,overwrite= True)
+def rounded_rec(width, height, r1=0,r2 = 0,r3 = 0,r4 = 0, resolution = 5,d1 = [-1,-1],d2 = [1,-1],d3 = [1,1],d4 = [-1,1], same_radius = False, r = 5):
+    directions = np.array([[-1,-1],[1,-1],[1,1],[-1,1]])
+    if same_radius:
+        radius = np.array([r,r,r,r])
+    else:
+        radius = np.array([r1,r2,r3,r4])
+    d = np.array([d1,d2,d3,d4])
+    x = np.array([-width/2, width/2, width/2, -width/2])
+    y = np.array([-height/2, -height/2, height/2, height/2])
+    radius = np.array(radius)
+    coords = []
+    for i in range(len(x)):
+        if radius[i] == 0:
+            coord = np.array([[x[i],y[i]]])
+        else:
+            xx = x[i]-directions[i][0]*radius[i]
+            yy = y[i]-directions[i][1]*radius[i]
+            diff = directions[i]-d[i]
+            xx = xx + diff[0]*radius[i]
+            yy = yy + diff[1]*radius[i]
+            
+            coord = ((round_corners(xx,yy,direction = d[i], radius = radius[i], n_points = resolution)))
+            inds = np.argsort(-coord[:,0]*directions[i][1]*directions[i][0]*d[i][0])
+            coord = coord[inds]
+        if i == 0:
+            coords = coord
+        else:
+            coords = np.concatenate((coords, coord))
+
+    rounded_rec = draw.Polygon(coords)
+    return rounded_rec
+
+def round_corners(x,y,direction, radius, n_points = 5):
+    xi, yi = direction
+    pts = [(xi*radius * np.cos(np.pi/2 * x / n_points),
+                                yi*radius * np.sin(np.pi/2 * x / n_points)) for x in range(int(n_points+1))]
+    # if (xi*yi<0) or flip:
+    #     pts = pts[::-1]
+    x_corner = x#-radius*xi
+    y_corner = y#-radius*yi
+    pts = np.array(pts)
+    coords = pts +np.array([x_corner,y_corner])
+    
+    return coords
