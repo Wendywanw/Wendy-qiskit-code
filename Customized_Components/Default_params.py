@@ -1,6 +1,11 @@
-from qiskit_metal import designs, Dict
-import astropy.units as u
 
+import astropy.units as u
+import numpy as np
+import pandas as pd
+import astropy.constants as c
+
+from qiskit_metal import designs, Dict
+from qiskit_metal.qlibrary.tlines.mixed_path import RouteMixed
 from qiskit_metal.analyses.quantization import LOManalysis
 from qiskit_metal.analyses.quantization import EPRanalysis
 
@@ -117,3 +122,98 @@ def init_hfss_sim(nmode = 2, Ljs = ['13nH'], max_passes = 30, min_passes = 10, c
         eig_all.sim.setup.vars ['Lj'.format(i+1)] = Lj
         eig_all.sim.setup.vars ['Cj'.format(i+1)] = jj.find_junction_capacitance(float(Lj[:-2]))
     return eig_all, renderer_hfss, hfss
+
+def change_inductance(Ljs, eig_all, c1):
+    for i,Lj in enumerate(Ljs):
+        eig_all.sim.setup.vars ['Lj'.format(i+1)] = Lj
+        c1.sim.setup.vars ['Lj'.format(i+1)] = Lj
+        cc = jj.find_junction_capacitance(float(Lj[:-2]))
+        eig_all.sim.setup.vars ['Cj'.format(i+1)] = cc
+        c1.sim.setup.vars ['Cj'.format(i+1)] = cc
+
+def construct_cpw(q,j, TQ, pad_size, offset, extend, gapp, Lj, Cj, TQx,TQy, small, TQ_mir,gui, design, displacement = '0um', buffer = 150*u.um, sim  = True, eig_all = ''):
+    gap1 = 0.056
+    gap = 30*u.um
+    print(pad_size)
+    size = pad_size.to(u.um)
+    pocket_width = size+2*gap
+    cpw_name = 'cpw_'+ q.name[-1:]
+    design.delete_component(cpw_name)
+    coupling_len = extend
+    q.options['pad_height'] = '{}'.format(size)
+    q.options['pad_width'] = '{}'.format(size)
+    q.options['pocket_width'] = '{}'.format(pocket_width)
+    q.options['connection_pads']['a']['pad_width'] = '{}'.format(coupling_len)
+    q.options['connection_pads']['a']['pad_height'] = '30um-{}'.format(gapp)
+    q.options['connection_pads']['a']['pad_gap'] = '{}'.format(gapp)
+    q.options.hfss_inductance = Lj
+    q.options.q3d_inductance =  Lj
+    q.options.hfss_capacitance = Cj
+    q.options.q3d_capacitance =  Cj
+    gui.rebuild()
+    y_pos = (q.options.pad_height) + '/2' + '+' + (q.options.jj_length) +'-'+ (j.options.total_length)+'/4'
+    x_pos  = q.options.pos_x
+    j.options.pos_x = x_pos
+    j.options.pos_y = '-'+'('+y_pos+')'+ '+'+q.options.pos_y
+    print(j.options.pos_y)
+
+    gui.rebuild()
+
+
+    l_name = 'Lj'+ q.name[-1:]
+    c_name = 'Cj'+ q.name[-1:]
+
+    if sim:
+        eig_all.sim.renderer.options[l_name] = Lj
+        eig_all.sim.renderer.options[c_name] = Cj
+        eig_all.sim.setup.vars = {l_name:Lj, c_name:Cj}
+
+    TQ.options.pos_x = TQx + '+' + displacement
+    q.options.pos_x = displacement
+    q.options.pos_y = '-'+TQy
+    TQ.options.mirror = TQ_mir
+    TQ.options.pos_y = '0um'
+    gui.rebuild()
+
+    anchors = trans_p.anchor_CPW_round(q, buffer, gap1, 2, small = small, last_offset = offset)
+    design.delete_component(cpw_name)
+    
+    pin_inputs = Dict(
+                start_pin=Dict(component=q.name, pin='a'),
+                end_pin=Dict(component=TQ.name, pin='second_end'))
+
+    CPW_options['pin_inputs'] = pin_inputs
+
+    qa = RouteMixed(design, 'cpw_'+q.name[-1:], options = Dict(anchors = anchors, **CPW_options))
+
+    gui.rebuild()
+    
+    return q,j, qa, TQ, design, gui
+
+def slice_data(data, freq):
+    diff = freq-4
+    ind = round(diff/0.2)
+    return data.iloc[ind]
+
+def construct_cpw_qubit(q,j, TQ, freq, gui, design, eig_all = '', displacement = '0um', guess_path = r'data/educated_guess_0403.csv',sim = True):
+    guess_all = pd.read_csv(guess_path)
+    guesses = slice_data(guess_all, freq)
+    size = guesses['Sizes (um)']*u.um
+    print(size)
+    buffer = guesses['Buffers (um)']*u.um
+    offset = guesses['Offsets (mm)']
+    coupling_len = guesses['Coupling_len(um)']*u.um
+    coupling_gap = guesses['Coupling_gap(um)']*u.um
+    Lj = guesses['Ljs']
+    Cj = jj.find_junction_capacitance(int(Lj[:-2])*u.nH)
+    
+    Cj1 = str(Cj.to(u.fF).value)+' fF'
+    size = size.to(u.um)
+
+    TQx = guesses['TQx']
+    TQy = guesses['TQy']
+    TQ_mir = guesses['TQ_mir']
+    small = guesses['Small']
+    
+    q,j, cpw, TQ, design,gui = construct_cpw(q,j, TQ, size, offset, coupling_len, coupling_gap, Lj, Cj1, TQx,TQy, small, TQ_mir,gui, design,displacement, buffer, sim, eig_all)
+    return q,j,cpw, TQ, design,gui

@@ -71,10 +71,10 @@ class Round_TransmonPocket_Single(BaseQubit):
 
     BaseQubit Default Options:
         * connection_pads: Empty Dict -- The dictionary which contains all active connection lines for the qubit.
-        * _default_connection_pads: Empty Dict -- The default values for the (if any) connection lines of the qubit.
+        _default_connection_pads: Empty Dict -- The default values for the (if any) connection lines of the qubit.
 
     Default Options:
-        * pad_gap: '30um' -- The distance between the two charge islands, which is also the resulting 'length' of the pseudo junction
+        pad_gap: '30um' -- The distance between the two charge islands, which is also the resulting 'length' of the pseudo junction
         * inductor_width: '20um' -- Width of the pseudo junction between the two charge islands (if in doubt, make the same as pad_gap). Really just for simulating in HFSS / other EM software
         * pad_width: '455um' -- The width (x-axis) of the charge island pads
         * pad_height: '90um' -- The size (y-axis) of the charge island pads
@@ -116,6 +116,8 @@ class Round_TransmonPocket_Single(BaseQubit):
         round_corners='True',
         corner_radius='pad_buffer_radius',
         resolution = 'buffer_resolution',
+        junction = 'False',
+        jj_pocket_extent = '20um',
         # 90 has dipole aligned along the +X axis,
         # while 0 has dipole aligned along the +Y axis
         _default_connection_pads=Dict(
@@ -182,11 +184,26 @@ class Round_TransmonPocket_Single(BaseQubit):
         pad_top = draw.translate(pad, 0, +pocket_height/2.-pad_pocket_distance_top-pad_height/2.)
         # pad_bot = draw.translate(pad, 0, -(pad_height + pad_gap) / 2.)
 
-        rect_jj = draw.LineString([(0, +pocket_height/2.-pad_pocket_distance_top-pad_height), (0, +pocket_height/2.-pad_pocket_distance_top-pad_height-jj_length)])
+        rect_jj = draw.LineString([(0, +pocket_height/2.-pad_pocket_distance_top-pad_height), 
+                                   (0, +pocket_height/2.-pad_pocket_distance_top-pad_height-jj_length)])
         # the draw.rectangle representing the josephson junction
         # rect_jj = draw.rectangle(p.inductor_width, pad_gap)
 
         rect_pk = rec(p.pocket_width, pocket_height, p.corner_radius+p.pad_gap, p.resolution)
+        
+        
+        if p.junction == 'True':
+            cut_out = draw.rectangle(p.inductor_width/4, p.jj_pocket_extent/4)
+            cut_out_big = draw.rectangle(p.inductor_width/2, p.jj_pocket_extent/4)
+            cut_out_big = draw.translate(cut_out_big, 0, p.jj_pocket_extent/4)
+            cutout = draw.shapely.ops.unary_union([cut_out, cut_out_big])
+            # cutout = draw.translate(cutout, 0, -p.jj_pocket_extent/8)
+            cutout_top = draw.translate(cutout,0,-p.pad_height/2)
+            cutout_bot = draw.rotate(cutout, 180, origin=(0,0))
+            cutout_bot = draw.translate(cutout_bot,0,-p.pad_height/2-p.jj_length)
+
+            pad_top = pad_top.difference(cutout_top)
+            rect_pk = draw.shapely.ops.unary_union([rect_pk, cutout_bot])
         # draw.rectangle(p.pocket_width, pocket_height)
 
         # Rotate and translate all qgeometry as needed.
@@ -198,6 +215,16 @@ class Round_TransmonPocket_Single(BaseQubit):
         polys = draw.translate(polys, p.pos_x, p.pos_y)
         [rect_jj, pad_top, rect_pk] = polys
 
+
+    
+        
+
+
+
+
+        # if p.junction:
+            
+
         # Use the geometry to create Metal qgeometry
         self.add_qgeometry('poly',
                            dict(pad_top=pad_top),
@@ -208,7 +235,8 @@ class Round_TransmonPocket_Single(BaseQubit):
                            chip=chip)
         # self.add_qgeometry('poly', dict(
         #     rect_jj=rect_jj), helper=True)
-        self.add_qgeometry('junction',
+        if p.junction == 'False':
+            self.add_qgeometry('junction',
                            dict(rect_jj=rect_jj),
                            width=p.inductor_width,
                            chip=chip)
@@ -307,13 +335,17 @@ class Round_TransmonPocket_Single(BaseQubit):
                             subtract=True,
                             chip=chip)
         else:
-            self.add_qgeometry('poly', {f'{name}_connector_pad': connector_pad},
+
+            connector = draw.shapely.ops.unary_union([connector_pad, connector_wire_path])
+            self.add_qgeometry('poly', {f'{name}_connector_pad': connector},
                             chip=chip)
-            self.add_qgeometry('poly', {f'{name}_wire': connector_wire_path},
-                            chip=chip)
-            self.add_qgeometry('poly', {f'{name}_wire_sub': connector_wire_CON},
-                            subtract=True,
-                            chip=chip)
+            # self.add_qgeometry('poly', {f'{name}_wire': connector_wire_path},
+            #                 chip=chip)
+            d = p.pad_pocket_distance_top-pc.pad_gap-pad_height
+            # connector_wire_CON = draw.translate(connector_wire_CON,0,d,overwrite=True)
+            # self.add_qgeometry('poly', {f'{name}_wire_sub': connector_wire_CON},
+            #                 subtract=True,
+            #                 chip=chip)
 
         ############################################################
 
