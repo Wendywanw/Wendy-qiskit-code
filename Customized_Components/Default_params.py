@@ -14,6 +14,9 @@ import sys
 sys.path.append('Customized_Components')
 import Transmon_property as trans_p
 import Transmon_specifications as jj
+import Transmon_specifications as jj
+from dolan_junction import DolanJunction as junction
+from rounded_single_pad import Round_TransmonPocket_Single as transmon
 
 import shapely
 import warnings
@@ -23,16 +26,20 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 design = designs.DesignPlanar({}, True)
 design.overwrite_enabled = True
-design.chips.main.size['size_x'] = '20 mm'
+design.chips.main.size['size_x'] = '10 mm'
 design.chips.main.size['size_y'] = '10 mm'
 
-design.variables['cpw_width'] = '15 um'
-design.variables['cpw_gap'] = '9 um'
+# design.variables['cpw_width'] = '15.95 um'
+# design.variables['cpw_gap'] = '9 um'
+
+design.variables['cpw_wdith'] = '12.4 um'
+design.variables['cpw_gap'] = '6.99 um'
+
 
 design.variables['trace_width'] = '12.4 um'
 cpw_pin_width = 12.4*u.um
-design.variables['trace_gap'] = '7 um'
-cpw_gap = 7*u.um
+design.variables['trace_gap'] = '6.99 um'
+cpw_gap = 6.99*u.um
 
 design.variables['pad_buffer_radius'] = '30 um'
 design.variables['buffer_resolution'] = '10'
@@ -55,8 +62,9 @@ connection_pads = dict(
             pocket_extent = '0um')))
 
 
-TQ_options = dict(prime_width = design.variables['cpw_width'],
-               prime_gap = design.variables['cpw_gap'],
+TQ_options = dict(coupling_length='120 um',
+                prime_width = design.variables['trace_width'],
+               prime_gap = design.variables['trace_gap'],
                second_width = design.variables['trace_width'],
                second_gap = design.variables['trace_gap'],
                down_length = '60um',
@@ -72,7 +80,7 @@ CPW_options = Dict(trace_width = design.variables['trace_width'],
         hfss_wire_bonds = True,
         q3d_wire_bonds = True,
         fillet='30 um',
-        lead = dict(start_straight='20um', end_straight = '50um'),
+        lead = dict(start_straight='5um', end_straight = '5um'),
         pin_inputs=Dict(
             start_pin=Dict(component='Q1', pin='a'),
             end_pin=Dict(component='TQ1', pin='second_end')), )
@@ -81,7 +89,12 @@ pin_inputs = Dict(
             start_pin=Dict(component='Q1', pin='a'),
             end_pin=Dict(component='TQ1', pin='second_end'))
 
-trans_options = Dict(hfss_wire_bonds = True,
+trans_options = Dict(trace_width = design.variables['trace_width'],
+               trace_gap  = design.variables['trace_gap'],
+               lead = dict(start_straight='5um', end_straight = '30um'),
+               fillet = '20um',
+               total_length = '0.5mm',
+               hfss_wire_bonds = True,
                      q3d_wirebonds = True,
                pin_inputs=Dict(
                  start_pin=Dict(
@@ -90,6 +103,22 @@ trans_options = Dict(hfss_wire_bonds = True,
                  end_pin=Dict(
                      component='TQ2',
                      pin='prime_end')))
+
+pocket_options = dict(
+        pos_x = '0mm', 
+        pos_y = '0mm', 
+        orientation = '0',
+        frequency = 5.2,
+        guess_path = r'/Users/wendy/Desktop/Wendy-qiskit-code/data/educated_guess_0403.csv',
+        coupling_path = '',
+        sim = True,
+        coord = '(0,0)',
+        qubit_layer = 5,
+        junction_layer = 2, 
+        ab_layer = 8,
+        ab_square_layer = 9,
+        ab_distance = '70um'
+        )
 
 
 def init_q3d_sim(max_passes = 20, min_passes =10, wb_threshold = '72um'):
@@ -216,4 +245,106 @@ def construct_cpw_qubit(q,j, TQ, freq, gui, design, eig_all = '', displacement =
     small = guesses['Small']
     
     q,j, cpw, TQ, design,gui = construct_cpw(q,j, TQ, size, offset, coupling_len, coupling_gap, Lj, Cj1, TQx,TQy, small, TQ_mir,gui, design,displacement, buffer, sim, eig_all)
+    return q,j,cpw, TQ, design,gui
+
+def make_qubit_from_scratch(design,gui, eig_all = '',sim = True):
+    p = self.options
+        # q,j, TQ, freq, gui, design, 
+    guess_all = pd.read_csv(p.guess_path)
+    guesses = slice_data(guess_all, p.frequency)
+    size = guesses['Sizes (um)']*u.um
+    buffer = guesses['Buffers (um)']*u.um
+    offset = guesses['Offsets (mm)']
+    coupling_len = guesses['Coupling_len(um)']*u.um
+    coupling_gap = guesses['Coupling_gap(um)']*u.um
+    Lj = guesses['Ljs']
+    Cj = jj.find_junction_capacitance(int(Lj[:-2])*u.nH)
+    
+    Cj1 = str(Cj.to(u.fF).value)+' fF'
+    size = size.to(u.um)
+
+    TQx = guesses['TQx']
+    TQy = guesses['TQy']
+    TQ_mir = guesses['TQ_mir']
+    small = guesses['Small']
+
+    feedline_coupling_space = guesses['Coupling_gap_feedline(um)']
+    
+
+    #start making the components
+    cpw_name = 'cpw_'+ q.name[-1:]
+    design.delete_component(cpw_name)
+
+    #make the qubit
+    gap = 30*u.um
+    size = size.to(u.um)
+    pocket_width = size+2*gap
+    
+    
+    qb_x = p.pos_x
+    qb_y = p.pos_y+'-'+TQy
+    qb_options = Dict(pos_x = qb_x,
+                      pos_y = qb_y,
+                      pad_height = '{}'.format(size), 
+                      pad_width = '{}'.format(size), 
+                      pocket_width = '{}'.format(pocket_width), 
+                      hfss_inductance = Lj,
+                      q3d_inductance =  Lj,
+                      hfss_capacitance = Cj,
+                      q3d_capacitance =  Cj,
+                      layer = p.qubit_layer
+                      **dp.qb_options)
+    q = transmon(design,'Q1',options = qb_options)
+    q.options['connection_pads']['a']['pad_width'] = '{}'.format(coupling_len)
+    q.options['connection_pads']['a']['pad_height'] = '30um-{}'.format(coupling_gap)
+    q.options['connection_pads']['a']['pad_gap'] = '{}'.format(coupling_gap)
+    gui.rebuild()
+
+    #make the junction
+    y_pos = '-'+'('+(q.options.pad_height) + '/2' + '+' + (q.options.jj_length) +'-'+ (j.options.total_length)+'/4''+'+q.options.pos_y
+    x_pos  = q.options.pos_x
+    jj_options = Dict(pos_x = x_pos, 
+                      pos_y = y_pos, 
+                      taper_len='0.5um',
+                      jj_gap = '0.14um',
+                      Lj = Lj, 
+                      layer = p.junction_layer)
+    j = junction(design, 'd', options = jj_options)
+    # j.options.pos_x = x_pos
+    # j.options.pos_y = '-'+'('+y_pos+')'+ '+'+q.options.pos_y
+    # j.options.layer = p.junction_layer
+    gui.rebuild()
+
+
+    l_name = 'Lj'+ q.name[-1:]
+    c_name = 'Cj'+ q.name[-1:]
+
+    if sim:
+        eig_all.sim.renderer.options[l_name] = Lj
+        eig_all.sim.renderer.options[c_name] = Cj
+        eig_all.sim.setup.vars = {l_name:Lj, c_name:Cj}
+
+    #make the coupled_line_tee
+    TQ = dp.TQ_options['down_length'] = '40 um'
+    TQ1 = CoupledLineTee(design, 'TQ1', options=dict(pos_x=TQx + '+' + p.pos_x,
+                                                pos_y=p.pos_y,
+                                                mirror = TQ_mir,
+                                                layer = p.qubit_layer,
+                                                **dp.TQ_options))
+    gui.rebuild()
+
+    #make the cpw
+    gap1 = 0.056
+    anchors = trans_p.anchor_CPW_round(q, buffer, gap1, 2, small = small, last_offset = offset)
+    design.delete_component(cpw_name)
+    
+    pin_inputs = Dict(
+                start_pin=Dict(component=q.name, pin='a'),
+                end_pin=Dict(component=TQ.name, pin='second_end'))
+
+    CPW_options['pin_inputs'] = pin_inputs
+
+    cpw = RouteMixed(design, 'cpw_'+q.name[-1:], options = Dict(anchors = anchors, **CPW_options))
+
+    gui.rebuild()
     return q,j,cpw, TQ, design,gui

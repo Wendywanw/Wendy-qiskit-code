@@ -169,7 +169,7 @@ class DolanJunction(QComponent):
         bot = draw.shapely.ops.unary_union([pad_bot, finger_bot])
 
         components = [top, bot]
-        components = draw.rotate(components, p.rotation, origin=(0, 0))
+        components = draw.rotate(components, p.orientation, origin=(0, 0))
         components = draw.translate(components, p.pos_x, p.pos_y)
         top, bot = components
         

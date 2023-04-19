@@ -130,7 +130,7 @@ def pins_for_spiral(radius,gap,n,dis = (0,0), r = np.inf, right = True, last_off
     
     return(final_list)
 
-def pins_for_spiral_round(radius,gap,n,dis = (0,0), r = np.inf, small = False, right = True, last_offset = 0):
+def pins_for_spiral_round(radius,gap,n,dis = (0,0), r = np.inf, small = False, right = True, last_offset = 0, rotation = 0):
     spiral_list = OrderedDict()
     x,y = dis
     i = 0
@@ -180,7 +180,7 @@ def anchor_CPW(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = n
     anchors = pins_for_spiral(wrap_r.value, wrap_gap, n, dis = (x,y), right = right, r = r, last_offset = last_offset)
     return anchors
 
-def anchor_CPW_round(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = np.Inf, small = False, right = True, last_offset = 0):
+def anchor_CPW_round(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int, r = np.Inf, small = False, right = True, last_offset = 0, rotation = 0):
     pocket_width = design.parse_value(qubit.options['pocket_width'])*u.mm
     cpad_height = design.parse_value(qubit.options['pad_height'])*u.mm
     distance_top = design.parse_value(qubit.options['pad_pocket_distance_top'])*u.mm
@@ -193,7 +193,7 @@ def anchor_CPW_round(qubit:designs.QDesign, buffer:float, wrap_gap:float, n:int,
     y =design.parse_value(qubit.options['pos_y'])
     
     
-    anchors = pins_for_spiral_round(wrap_r.value, wrap_gap, n, dis = (x,y), right = right, r = r, last_offset = last_offset, small = small)
+    anchors = pins_for_spiral_round(wrap_r.value, wrap_gap, n, dis = (x,y), right = right, r = r, last_offset = last_offset, small = small, rotation = 0)
     return anchors
 
 def find_wrap_size(qubit: designs.QDesign, buffer):

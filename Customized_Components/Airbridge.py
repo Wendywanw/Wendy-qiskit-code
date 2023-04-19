@@ -54,10 +54,13 @@ def find_coordinates(coordinates, r):
             seg_all.append(coordinates[i])
             segment_start.append(coordinates[i])
             continue
-        elif i == len(coordinates)-1:
+        if i == len(coordinates)-1:
+            if len(segment_start)==1:
+                seg_all.append(coordinates[i])
             # seg_all.append(coordinates[i-1])
-            seg_all.append(coordinates[i])
-            segment_start.append(segment_end[-1])
+            else:
+                seg_all.append(coordinates[i])
+                segment_start.append(segment_end[-1])
             segment_end.append(coordinates[i])
             segment_type.append('straight')
             angle = find_line_direction(coordinates[i-1],coordinates[i])
@@ -105,13 +108,13 @@ def find_coordinates(coordinates, r):
             # seg_all.append(coordinates[i-1])
             seg_all.append((x_modi,y_modi))
             seg_all.append((x1_modi,y1_modi))
-            segment = {}
-            segment['start'] = segment_start
-            segment['end'] = segment_end
-            segment['angle'] = segment_angle
-            segment['length'] = segment_length
-            segment['type'] = segment_type
-            segment['clockwise'] = clockwise
+    segment = {}
+    segment['start'] = segment_start
+    segment['end'] = segment_end
+    segment['angle'] = segment_angle
+    segment['length'] = segment_length
+    segment['type'] = segment_type
+    segment['clockwise'] = clockwise
 
     return segment    
 def make_ab_element(design,cpw,arc_bridge = False):
@@ -137,7 +140,8 @@ def make_ab_element(design,cpw,arc_bridge = False):
     out_box_len = box_side + 0.002*2
     r_in = r-center_pin/2-gap_w
     if r_in < out_box_len:
-        print('error!!!')
+        # print('error!!!')
+        pass
     else:
         ab_inside_extend = r_in - np.sqrt(r_in**2 - out_box_len**2)
 
@@ -197,19 +201,18 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
             end_x, end_y = segment_all['end'][seg_num]
             actual_end_x = end_x - np.cos(np.radians(last_angle))*start_early_buffer
             actual_end_y = end_y - np.sin(np.radians(last_angle))*start_early_buffer
-            if actual_start_x<x_new<end_x or actual_start_x>x_new>end_x:
+            if actual_start_x<=x_new<end_x or actual_start_x>=x_new>end_x:
                 if actual_start_y<y_new<end_y or actual_start_y>y_new>end_y:
                     pass
-                elif actual_start_y<y_new<start_y or actual_start_y>y_new>start_y:
+                elif actual_start_y<=y_new<start_y or actual_start_y>=y_new>start_y:
                     y_new = actual_start_y
-                elif actual_end_y<y_new<end_y or actual_end_y>y_new>end_y:
+                elif actual_end_y<=y_new<end_y or actual_end_y>=y_new>end_y:
                     y_new = actual_end_y
-            elif actual_start_y<y_new<end_y or actual_start_y>y_new>end_y:
-                if actual_start_x<x_new<start_x or actual_start_x>x_new>start_x:
+            elif actual_start_y<=y_new<end_y or actual_start_y>=y_new>end_y:
+                if actual_start_x<=x_new<start_x or actual_start_x>=x_new>start_x:
                     x_new = actual_start_x
-                elif actual_end_x<x_new<end_x or actual_end_x>x_new>end_x:
+                elif actual_end_x<=x_new<end_x or actual_end_x>=x_new>end_x:
                     x_new = actual_end_x
-
             ab_all['coord'].append((x_new,y_new))
             return ab_all, True, False
         else:
@@ -310,7 +313,7 @@ def anti_collision(ab, box_side, xover_len, coord_all):
                 continue
             else:
                 # print('changex!')
-                print(np.absolute(y-y0), np.absolute(x-x0))
+                # print(np.absolute(y-y0), np.absolute(x-x0))
                 df = x-x0
                 change_needed = np.absolute(side_diff) - np.absolute(df)
                 x += change_needed*np.sign(df)
@@ -435,7 +438,8 @@ class airbridges(QComponent):
             flag = True
         length_remaining = segment['length'][seg_num] - d
         if length_remaining<0:
-            raise ValueError('Please Adjust airbridge position')
+            pass
+            # raise ValueError('Please Adjust airbridge position')
         ab['length_remain'] = [length_remaining]
         ab['inside_extend'] = [flag]
         x0 += d*np.cos(angle/180*np.pi)

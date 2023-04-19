@@ -297,12 +297,26 @@ class Round_TransmonPocket_Single(BaseQubit):
             objects = draw.translate(objects,-loc_W*(p.corner_radius),0)
         else:
             connector_pad = draw.translate(connector_pad,pad_width/2, 0)
-            draw_height = p.pad_pocket_distance_top-pc.pad_gap-pad_height+pocket_extent+cpw_extend
-            radi = pc.corner_radius+pocket_extent
+            draw_height = p.pad_pocket_distance_top-pc.pad_gap-pad_height-cpw_extend
+            radi = pc.corner_radius
             connector_wire_path = rec(cpw_width, draw_height, radi, p.resolution,connection = True,connection_direction = 180)
             connector_wire_CON = rec(cpw_width+2*pc.cpw_gap, draw_height, radi+pc.cpw_gap*2, p.resolution,connection = True, connection_direction = 180)
             obj = [connector_wire_path,connector_wire_CON]
-            obj = draw.translate(obj,0,draw_height/2+pad_height-pocket_extent)
+            obj = draw.translate(obj,0,draw_height/2+pad_height)
+            wire_path = draw.LineString([(0,draw_height+pad_height-pocket_extent+(pocket_height/2 - p.pad_pocket_distance_top + pc.pad_gap)), 
+                                          (0,draw_height+pad_height+cpw_extend-1e-12+(pocket_height/2 - p.pad_pocket_distance_top + pc.pad_gap))])
+            # wire_path = 
+            
+            # draw.wkt.loads(f"""LINESTRING (\
+            #     {cpw_width/2} 0 , \
+            #     {pad_cpw_shift+cpw_width/2}         {(p.pocket_width-p.pad_width)/2-pocket_extent}, \
+            #     {pad_cpw_shift+cpw_width/2}         {(p.pocket_width-p.pad_width)/2+cpw_extend}\
+                
+                                            # )""")
+            
+                #{pad_cpw_shift+cpw_width/2}         {pc.pad_cpw_extent}, \
+            
+            # {pad_cpw_shift+cpw_width/2}         {(p.pocket_width-p.pad_width)/2+cpw_extend}\
             
         # Position the connector, rot and tranlate
         
@@ -311,7 +325,7 @@ class Round_TransmonPocket_Single(BaseQubit):
         #         'Warning: Did you mean to define a transmon wubit with loc_W and'
         #         ' loc_H that are not +1 or -1?? Are you sure you want to do this?'
         #     )
-            objects = [connector_pad, obj[0], obj[1]]
+            objects = [connector_pad, obj[0], obj[1], wire_path]
             # objects = draw.scale(objects, 1, loc_H, origin=(0, 0))
 
         
@@ -322,8 +336,10 @@ class Round_TransmonPocket_Single(BaseQubit):
         
         objects = draw.rotate_position(objects, p.orientation,
                                        [p.pos_x, p.pos_y])
-        
-        [connector_pad, connector_wire_path, connector_wire_CON] = objects
+        if len(objects) == 4:
+            [connector_pad, connector_wire_path, connector_wire_CON, wirepath] = objects
+        else:
+            [connector_pad, connector_wire_path, connector_wire_CON] = objects
         if (float(loc_W) in [-1., +1.]) and (float(loc_H) in [-1., +1.]):
             self.add_qgeometry('poly', {f'{name}_connector_pad': connector_pad},
                             chip=chip)
@@ -341,7 +357,15 @@ class Round_TransmonPocket_Single(BaseQubit):
                             chip=chip)
             # self.add_qgeometry('poly', {f'{name}_wire': connector_wire_path},
             #                 chip=chip)
-            d = p.pad_pocket_distance_top-pc.pad_gap-pad_height
+            # d = p.pad_pocket_distance_top-pc.pad_gap-pad_height
+            # print(type(wirepath))
+            # self.add_qgeometry('path', {f'{name}_wire': wire_path},
+            #                 width=cpw_width,
+            #                 chip=chip)
+            # self.add_qgeometry('path', {f'{name}_wire_sub': wire_path},
+            #                 width=cpw_width + 2 * pc.cpw_gap,
+            #                 subtract=True,
+            #                 chip=chip)
             # connector_wire_CON = draw.translate(connector_wire_CON,0,d,overwrite=True)
             # self.add_qgeometry('poly', {f'{name}_wire_sub': connector_wire_CON},
             #                 subtract=True,
@@ -350,7 +374,7 @@ class Round_TransmonPocket_Single(BaseQubit):
         ############################################################
 
         # add pins
-        
+        rotation_ang = np.radians(p.orientation)
         if float(loc_W) in [-1.,1.]:
             points = np.array(connector_wire_path.coords)
             self.add_pin(name,
@@ -361,9 +385,13 @@ class Round_TransmonPocket_Single(BaseQubit):
         else:
             x = p.pos_x
             y = p.pos_y
-            ys = y+p.pad_height/2+p.pad_pocket_distance_top
+            diff = p.pad_height/2+p.pad_pocket_distance_top-cpw_extend
+            x += np.sin(-rotation_ang)*diff
+            y += np.cos(-rotation_ang)*diff
+            val = pc.cpw_extend/2+0.0001
+            # print(x,y)
             self.add_pin(name,
-                     points=[[x,ys-pc.cpw_extend/2-0.0001],[x,ys+pc.cpw_extend/2]],
+                     points=[[x-np.sin(-rotation_ang)*val,y-np.cos(-rotation_ang)*val],[x+np.sin(-rotation_ang)*(val-0.0001),y+np.cos(-rotation_ang)*(val-0.0001)]],
                      width=cpw_width,
                      input_as_norm=True,
                      chip=chip)
