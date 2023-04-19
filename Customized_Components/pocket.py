@@ -62,7 +62,7 @@ class TransmonPocket():
         rotation = p['rotation']
         rot_angle = np.radians(rotation)
             # q,j, TQ, freq, gui, design, 
-        print(p)
+        # print(p)
         guess_all = pd.read_csv(p['guess_path'])
         guesses = dp.slice_data(guess_all, p['frequency'])
         size = guesses['Sizes (um)']*u.um
@@ -315,7 +315,7 @@ class TransmonPocket():
                 pin_end = 'prime_end'
                 anchor[0] = (3.9, 4.75)
             elif x<x_com:
-                print('1')
+                # print('1')
                 anchor[0] = (x_com-0.05+buffer,ys[ind])
                 # anchor[1] = (x_com-0.075+buffer,ys[ind])
                 start_name = self.Tee.name
@@ -334,10 +334,10 @@ class TransmonPocket():
         pin_inputs = Dict(
                 start_pin=Dict(component=start_name, pin=pin_start),
                 end_pin=Dict(component=end_name, pin=pin_end))
-        print(pin_inputs)
+        # print(pin_inputs)
         dp.trans_options['pin_inputs'] = pin_inputs
         ops = Dict(anchors = anchor, **dp.trans_options)
-        print('o',ops)
+        # print('o',ops)
         
         cpw = RouteMixed(self.design, self.options['coord'] + 'CPW'+ name,
                           options = Dict(anchors = anchor, **dp.trans_options))
