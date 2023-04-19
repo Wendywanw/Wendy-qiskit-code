@@ -72,6 +72,8 @@ class TransmonPocket():
         coupling_gap = guesses['Coupling_gap(um)']*u.um
         Lj = guesses['Ljs']
         Cj = jj.find_junction_capacitance(int(Lj[:-2])*u.nH)
+
+        c_gap = guesses['Coupling_gap_feedline(um)']
         
         Cj1 = str(Cj.to(u.fF).value)+' fF'
         size = size.to(u.um)
@@ -122,7 +124,7 @@ class TransmonPocket():
         q.options['connection_pads']['a']['pad_width'] = '{}'.format(coupling_len)
         q.options['connection_pads']['a']['pad_height'] = '30um-{}'.format(coupling_gap)
         q.options['connection_pads']['a']['pad_gap'] = '{}'.format(coupling_gap)
-        gui.rebuild()
+        # gui.rebuild()
 
         self.qubit = q
 
@@ -147,17 +149,17 @@ class TransmonPocket():
         # else:
         x = design.parse_value(q.options.pos_x)
         y = design.parse_value(q.options.pos_y)
-        print(x,y)
+        # print(x,y)
         x += np.sin(rot_angle)*(-parsed_ypos)
         y += np.cos(rot_angle)*(-parsed_ypos)
-        print(x,y)
+        # print(x,y)
         j.options.pos_y = y
         j.options.pos_x = x
         # # j.options.pos_y = y_pos
         # # j.options.pos_x = x_pos
         
         # # j.options.layer = p.junction_layer
-        gui.rebuild()
+        # gui.rebuild()
         self.junction = j
 
 
@@ -171,6 +173,7 @@ class TransmonPocket():
 
         #make the coupled_line_tee
         dp.TQ_options['down_length'] = '40 um'
+        dp.TQ_options['coupling_space'] = '{}um'.format(c_gap)
         tqx = design.parse_value(TQx)
         tqy= design.parse_value(TQy)
         qb_x= design.parse_value(q.options.pos_x)
@@ -187,8 +190,7 @@ class TransmonPocket():
                                                     orientation = -rotation,
                                                     **dp.TQ_options))
         gui.rebuild()
-        gui.autoscale()
-        print(TQ1.pins['second_end'], 'pin')
+        # print(TQ1.pins['second_end'], 'pin')
         self.Tee = TQ1
 
         #make the cpw
@@ -225,7 +227,7 @@ class TransmonPocket():
             print('there is a cpw building error')
             pass
         else:
-            gui.rebuild()
+            # gui.rebuild()
             self.resonator = cpw
 
             ab_options = Dict(cpw_name = cpw.name, distance = p['ab_distance'], dis = '50um', layer_ab_square = str(p['ab_square_layer']), layer_ab = str(p['ab_layer']), total_length = '80 um', chip = 'main', seg_num = '0')
@@ -352,7 +354,7 @@ class TransmonPocket():
                           seg_num = '0')
         airb = ab(self.design, 'airbridge_connects' + self.options['coord'] + name, ab_options)
         self.connection_ab.append(airb)
-        self.gui.rebuild()
+        # self.gui.rebuild()
         
 
 
