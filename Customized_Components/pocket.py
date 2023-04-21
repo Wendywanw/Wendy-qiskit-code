@@ -295,7 +295,8 @@ class TransmonPocket():
                 # print('yay', start_name, end_name)
                 anchor = OrderedDict()
         elif 'pad' in str(type(component)):
-            ys = [3.96, 3.86, 2.91, 1.96, 1.01, 0.06, -0.89, -1.84, -2.79, -3.74]
+            ys = [3.8,3.65,2.70000,1.750000,0.8000,
+            -0.150000,-1.10000,-2.050000,-3.0000,-3.950000]
             x_com = design.parse_value(component.options.pos_x)
             y_com = design.parse_value(component.options.pos_y)
             name = component.name
