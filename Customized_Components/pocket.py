@@ -353,7 +353,6 @@ class TransmonPocket():
                 pin_end = 'prime_start'
                 start_name = component.name
                 pin_start = 'tie'
-            print(self.Tee.name)
             pin_inputs = Dict(
                     start_pin=Dict(component=start_name, pin=pin_start),
                     end_pin=Dict(component=end_name, pin=pin_end))
