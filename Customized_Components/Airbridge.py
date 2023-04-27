@@ -48,6 +48,24 @@ def find_coordinates(coordinates, r):
     seg_all = []
     clockwise = []
 
+    cor = np.array(coordinates)
+    if np.all(cor[:,1] == cor[:,1][0]) or np.all(cor[:,0] == cor[:,0][0]):
+        segment_start = [coordinates[0]]
+        segment_end = [coordinates[-1]]
+        segment_type = ['straight']
+        segment_angle = [find_line_direction(coordinates[0],coordinates[-1])]
+        segment_length = [find_segment_length(coordinates[0],coordinates[-1], type = 'straight')]
+        clockwise = [0]
+        segment = {}
+        segment['start'] = segment_start
+        segment['end'] = segment_end
+        segment['angle'] = segment_angle
+        segment['length'] = segment_length
+        segment['type'] = segment_type
+        segment['clockwise'] = clockwise
+        return segment
+
+
     for i, cords in enumerate(coordinates):
         
         if i ==0:
@@ -71,6 +89,7 @@ def find_coordinates(coordinates, r):
             break
         angle = find_line_direction(coordinates[i-1],cords)
         next_angle = find_line_direction(cords,coordinates[i+1])
+        # print(angle, next_angle, coordinates[i-1], cords, coordinates[i+1])
         # print(angle, next_angle)
         # print(np.absolute(angle-next_angle))
         if angle == next_angle:
@@ -171,18 +190,24 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
     smaller = True
     last_angle = segment_all['angle'][seg_num]
     if start_early:
+        if segment_all['type'][seg_num+1]=='arc':
+            seg_num += 1
         angle = segment_all['angle'][seg_num+1]/180*np.pi
         x, y  = segment_all['start'][seg_num+1]
         x += np.cos(angle)*start_early_buffer
         y += np.sin(angle)*start_early_buffer
         ab_all['coord'].append((x,y))
-        ab_all['length_remain'].append(segment_all['length'][seg_num+1]-start_early_buffer/2)
+        ab_all['length_remain'].append(segment_all['length'][seg_num+1]-start_early_buffer)
         ab_all['seg_num'].append(seg_num+1)
         clockwise = segment_all['clockwise'][seg_num]
         ab_all['angle'].append(segment_all['angle'][seg_num+1])#+180*clockwise)
         ab_all['inside_extend'].append(False)
         return ab_all, True, False
     if last_len >= distance:
+        if (last_len-distance)<start_early_buffer:
+            # ab_all['seg_num'][-1] = seg_num
+            # print(seg_num<len(segment_all['angle']))
+            return ab_all, seg_num<(len(segment_all['angle'])-1), True
         ab_all['length_remain'].append(last_len-distance)
         ab_all['seg_num'].append(seg_num)
         x,y = last_pt
@@ -220,29 +245,36 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
             ab_all['seg_num'][-1] = seg_num
             start_early = True
             return ab_all, True, True
-    elif seg_num == len(segment_all['type'])-1:
+    elif int(seg_num) == int(len(segment_all['type'])-1):
         return ab_all, False, False
         
     else:
+        # print(segment_all, seg_num)
         smaller = True
         len_needed = distance-last_len
         while smaller:
+            # print(seg_num, len_needed)
             seg_num += 1
             next_len = segment_all['length'][seg_num]
             if next_len >= len_needed:
                 break
             elif (next_len < len_needed) and (seg_num == len(segment_all['type'])-1):
+                # print(ab_all, segment_all)
                 return ab_all, False, False
             else:
                 len_needed -= next_len
+        if (next_len-len_needed)<start_early_buffer:
+            # print(seg_num<len(segment_all['angle']))
+            return ab_all, seg_num<(len(segment_all['angle'])-1), True
         ab_all['seg_num'].append(seg_num)
         ab_all['length_remain'].append(next_len-len_needed)
+        # print(next_len-len_needed,seg_num)
         x0, y0 = segment_all['start'][seg_num]
         last_angle = segment_all['angle'][seg_num]
         if segment_all['type'][seg_num] == 'straight':
             angle = last_angle/180*np.pi
-            x_new = x0 + len_needed*np.cos(angle)
-            y_new = y0 + len_needed*np.sin(angle)
+            x_new = x0 + len_needed*np.cos(angle)+start_early_buffer*np.cos(angle)
+            y_new = y0 + len_needed*np.sin(angle)+start_early_buffer*np.sin(angle)
             
             angle = angle*180/np.pi
             ab_all['angle'].append(angle)
@@ -256,16 +288,16 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
             actual_end_x = end_x - np.cos(np.radians(last_angle))*start_early_buffer
             actual_end_y = end_y - np.sin(np.radians(last_angle))*start_early_buffer
             if actual_start_x<=x_new<end_x or actual_start_x>=x_new>end_x:
-                if actual_start_y<y_new<end_y or actual_start_y>y_new>end_y:
+                if actual_start_y<=y_new<=actual_end_y or actual_start_y>=y_new>=actual_end_y:
                     pass
-                elif actual_start_y<=y_new<start_y or actual_start_y>=y_new>start_y:
+                elif actual_start_y<y_new<start_y or actual_start_y>y_new>start_y:
                     y_new = actual_start_y
-                elif actual_end_y<=y_new<end_y or actual_end_y>=y_new>end_y:
+                elif actual_end_y<y_new<end_y or actual_end_y>y_new>end_y:
                     y_new = actual_end_y
-            elif actual_start_y<=y_new<end_y or actual_start_y>=y_new>end_y:
-                if actual_start_x<=x_new<start_x or actual_start_x>=x_new>start_x:
+            elif actual_start_y<=y_new<=actual_end_y or actual_start_y>=y_new>=actual_end_y:
+                if actual_start_x<x_new<start_x or actual_start_x>x_new>start_x:
                     x_new = actual_start_x
-                elif actual_end_x<=x_new<end_x or actual_end_x>=x_new>end_x:
+                elif actual_end_x<x_new<end_x or actual_end_x>x_new>end_x:
                     x_new = actual_end_x
             ab_all['coord'].append((x_new,y_new))
             return ab_all, True, False
@@ -273,6 +305,7 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
             ab_all['length_remain'][-1] = 0
             ab_all['seg_num'][-1] = seg_num
             start_early = True
+            # print(ab_all)
 
             return ab_all, True, True
 def ab_placement(top, base, coord, angle):
@@ -450,17 +483,38 @@ class airbridges(QComponent):
         start_early = False
         while test:
             
-            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side)
+            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side/2)
             if not (test):
                 break
             elif start_early:
                 continue
             else:
                 ab, test = anti_collision(ab,box_side,xover_len, segment)
-        
+        # print(ab)
+        #remove bridges too far
+        cor = np.array(coordinates)
+        max_x = max(cor[:,0])
+        min_x = min(cor[:,0])
+        max_y = max(cor[:,1])
+        min_y = min(cor[:,1])
+        # print(max_x, min_x, max_y, min_y)
+        # print(cor)
+
+        for i in range(len(ab['coord'])):
+            x, y = ab['coord'][i]
+            if x>max_x or x<min_x or y>max_y or y<min_y:
+                ab['coord'][i] = None
+                ab['length_remain'][i] = None
+                ab['angle'][i] = None
+                ab['seg_num'][i] = None
+                ab['inside_extend'][i] = None
+                # print(x,y)
 
         #place the airbridges:
         for i in range(len(ab['coord'])):
+            if ab['coord'][i] == None:
+                continue
+            # print(i)
             angle = ab['angle'][i]
             coord = ab['coord'][i]
             if ab['inside_extend'][i]:
