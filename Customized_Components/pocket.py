@@ -28,7 +28,6 @@ class TransmonPocket():
         frequency = 5.2,
         guess_path = r'/Users/wendy/Desktop/Wendy-qiskit-code/data/educated_guess_0403.csv',
         coupling_path = '',
-        sim = True,
         coord = '(0,0)',
         qubit_layer = 5,
         junction_layer = 2, 
@@ -109,19 +108,25 @@ class TransmonPocket():
 
         x -= np.sin(rot_angle)*y_dis
         y -= np.cos(rot_angle)*y_dis
+
         qb_options = Dict(pos_x = str(x),
-                        pos_y = str(y),
-                        orientation = -rotation,
-                        pad_height = '{}'.format(size), 
-                        pad_width = '{}'.format(size), 
-                        pocket_width = '{}'.format(pocket_width), 
-                        hfss_inductance = Lj,
-                        q3d_inductance =  Lj,
-                        hfss_capacitance = Cj,
-                        q3d_capacitance =  Cj,
-                        layer = p['qubit_layer'],
-                        junction = 'True',
-                        **dp.qb_options)
+                            pos_y = str(y),
+                            orientation = -rotation,
+                            pad_height = '{}'.format(size), 
+                            pad_width = '{}'.format(size), 
+                            pocket_width = '{}'.format(pocket_width), 
+                            hfss_inductance = Lj,
+                            q3d_inductance =  Lj,
+                            hfss_capacitance = Cj1,
+                            q3d_capacitance =  Cj1,
+                            layer = p['qubit_layer'],
+                            junction = 'True',
+                            **dp.qb_options)
+
+        if self.sim:
+           qb_options['junction'] = 'False'
+        
+
         q = transmon(design,'qubit'+p['coord'],options = qb_options)
         q.options['connection_pads']['a']['pad_width'] = '{}'.format(coupling_len)
         q.options['connection_pads']['a']['pad_height'] = '30um-{}'.format(coupling_gap)
@@ -131,38 +136,28 @@ class TransmonPocket():
         self.qubit = q
 
         #make the junction
-        x_pos  = q.options.pos_x
-        y_pos = q.options.pos_y
-        jj_options = Dict(pos_x = str(x_pos), 
-                        pos_y = str(y_pos), 
-                        orientation = -rotation,
-                        taper_len='0.5um',
-                        jj_gap = '0.14um',
-                        Lj = Lj[:-2], 
-                        layer = p['junction_layer'])
-        # print(jj_options,'a')
-                        
-        j = junction(design, 'jj'+p['coord'], options = jj_options)
-        y_pos = (q.options.pad_height) + '/2' + '+' + (q.options.jj_length) +'-'+ (j.options.total_length)+'/4'#+'+'+q.options.pos_y
-        parsed_ypos= design.parse_value(y_pos)
-        parsed_diff = design.parse_value(q.options.pos_y)
-        # if rotation==0:
-        #     j.options.pos_y = str(-parsed_ypos+parsed_diff)
-        # else:
-        x = design.parse_value(q.options.pos_x)
-        y = design.parse_value(q.options.pos_y)
-        # print(x,y)
-        x += np.sin(rot_angle)*(-parsed_ypos)
-        y += np.cos(rot_angle)*(-parsed_ypos)
-        # print(x,y)
-        j.options.pos_y = y
-        j.options.pos_x = x
-        # # j.options.pos_y = y_pos
-        # # j.options.pos_x = x_pos
-        
-        # # j.options.layer = p.junction_layer
-        # gui.rebuild()
-        self.junction = j
+        if not self.sim:
+            x_pos  = q.options.pos_x
+            y_pos = q.options.pos_y
+            jj_options = Dict(pos_x = str(x_pos), 
+                            pos_y = str(y_pos), 
+                            orientation = -rotation,
+                            taper_len='0.5um',
+                            jj_gap = '0.14um',
+                            Lj = Lj[:-2], 
+                            layer = p['junction_layer'])
+                            
+            j = junction(design, 'jj'+p['coord'], options = jj_options)
+            y_pos = (q.options.pad_height) + '/2' + '+' + (q.options.jj_length) +'-'+ (j.options.total_length)+'/4'#+'+'+q.options.pos_y
+            parsed_ypos= design.parse_value(y_pos)
+            parsed_diff = design.parse_value(q.options.pos_y)
+            x = design.parse_value(q.options.pos_x)
+            y = design.parse_value(q.options.pos_y)
+            x += np.sin(rot_angle)*(-parsed_ypos)
+            y += np.cos(rot_angle)*(-parsed_ypos)
+            j.options.pos_y = y
+            j.options.pos_x = x
+            self.junction = j
 
 
         l_name = 'Lj'+ p['coord']
@@ -171,7 +166,8 @@ class TransmonPocket():
         if sim:
             eig_all.sim.renderer.options[l_name] = Lj
             eig_all.sim.renderer.options[c_name] = Cj
-            eig_all.sim.setup.vars = {l_name:Lj, c_name:Cj}
+            eig_all.sim.setup.vars[l_name] = Lj
+            eig_all.sim.setup.vars[c_name] = Cj
 
         #make the coupled_line_tee
         dp.TQ_options['down_length'] = '40 um'
@@ -213,7 +209,7 @@ class TransmonPocket():
         anchors = anchor_new
         # print(anchors)
         # print('aa')
-        design.delete_component(cpw_name)
+        # design.delete_component(cpw_name)
         
         pin_inputs = Dict(
                     start_pin=Dict(component=q.name, pin='a'),
@@ -297,7 +293,7 @@ class TransmonPocket():
                 anchor[0] = (x_com,y)
                 flag = True
             elif (self.qubit.options['orientation'] == -270) & (x>=3):
-                print('oops')
+                # print('oops')
                 pin_start = 'prime_start'
                 pin_end = 'prime_start'
                 start_name = self.Tee.name
@@ -363,7 +359,7 @@ class TransmonPocket():
                 anchor = OrderedDict()
                 anchor[0] = (x_com-(buffer+0.05)*np.sign(x_com),np.sign(y)*(max(np.absolute(y_com),np.absolute(y))-0.14))
                 anchor[1] = (x_com-(buffer+0.13)*np.sign(x_com),ys[ind])
-                print('short_segment!', anchor)
+                # print('short_segment!', anchor)
             dp.trans_options['fillet'] = '30um'
             # print(anchor, x_com)
             cpw = RouteMixed(self.design, self_name + 'CPW'+ name,

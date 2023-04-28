@@ -163,7 +163,7 @@ def change_inductance(Ljs, eig_all, c1):
 def construct_cpw(q,j, TQ, pad_size, offset, extend, gapp, Lj, Cj, TQx,TQy, small, TQ_mir,gui, design, displacement = '0um', buffer = 150*u.um, sim  = True, eig_all = ''):
     gap1 = 0.056
     gap = 30*u.um
-    print(pad_size)
+    # print(pad_size)
     size = pad_size.to(u.um)
     pocket_width = size+2*gap
     cpw_name = 'cpw_'+ q.name[-1:]
@@ -184,7 +184,7 @@ def construct_cpw(q,j, TQ, pad_size, offset, extend, gapp, Lj, Cj, TQx,TQy, smal
     x_pos  = q.options.pos_x
     j.options.pos_x = x_pos
     j.options.pos_y = '-'+'('+y_pos+')'+ '+'+q.options.pos_y
-    print(j.options.pos_y)
+    # print(j.options.pos_y)
 
     gui.rebuild()
 
@@ -228,7 +228,7 @@ def construct_cpw_qubit(q,j, TQ, freq, gui, design, eig_all = '', displacement =
     guess_all = pd.read_csv(guess_path)
     guesses = slice_data(guess_all, freq)
     size = guesses['Sizes (um)']*u.um
-    print(size)
+    # print(size)
     buffer = guesses['Buffers (um)']*u.um
     offset = guesses['Offsets (mm)']
     coupling_len = guesses['Coupling_len(um)']*u.um
