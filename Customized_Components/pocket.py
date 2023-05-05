@@ -26,7 +26,7 @@ class TransmonPocket():
         pos_y = '0mm', 
         orientation = '0',
         frequency = 5.2,
-        guess_path = r'/Users/wendy/Desktop/Wendy-qiskit-code/data/educated_guess_0403.csv',
+        guess_path = r'/Users/wendy/Desktop/Wendy-qiskit-code/data/educated_guess_0403_all.csv',
         coupling_path = '',
         coord = '(0,0)',
         qubit_layer = 5,
@@ -163,11 +163,11 @@ class TransmonPocket():
         l_name = 'Lj'+ p['coord']
         c_name = 'Cj'+ p['coord']
 
-        if sim:
-            eig_all.sim.renderer.options[l_name] = Lj
-            eig_all.sim.renderer.options[c_name] = Cj
-            eig_all.sim.setup.vars[l_name] = Lj
-            eig_all.sim.setup.vars[c_name] = Cj
+        # if sim:
+        #     eig_all.sim.renderer.options[l_name] = Lj
+        #     eig_all.sim.renderer.options[c_name] = Cj
+        #     eig_all.sim.setup.vars[l_name] = Lj
+        #     eig_all.sim.setup.vars[c_name] = Cj
 
         #make the coupled_line_tee
         dp.TQ_options['down_length'] = '40 um'
@@ -207,9 +207,10 @@ class TransmonPocket():
 
             anchor_new[ind] = (x_new, y_new)
         anchors = anchor_new
-        # print(anchors)
         # print('aa')
         # design.delete_component(cpw_name)
+        
+        
         
         pin_inputs = Dict(
                     start_pin=Dict(component=q.name, pin='a'),
@@ -217,27 +218,46 @@ class TransmonPocket():
         
         dp.CPW_options['pin_inputs'] = pin_inputs
         dp.CPW_options['layer'] = p['qubit_layer']
-        # print(anchors)
-        # print(dp.CPW_options)
-        # print(dp.CPW_options)
-        # try:
+        try:
+            dp.CPW_options['lead'] = dict(start_straight='5um', end_straight = '5um')
+            print('tried1')
         # cpw = dp.RouteMixed(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
-        cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
+            cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
+            
+        except:
+            self.design.delete_component('cpw_'+p['coord'])
+            test1 = False
+            test_pass = False
+            pass
+        else:
+            test_pass = True
+        if not test_pass:
+            try:
+                dp.CPW_options['lead'] = dict(start_straight='15um', end_straight = '21um')
+                print('tried2')
+                
+            # cpw = dp.RouteMixed(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
+                cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
+            except:
+                self.design.delete_component('cpw_'+p['coord'])
+                test2 = False
+                test_pass = False
+                print(anchors)
+                print(dp.CPW_options)
+                pass
+                
+            else:
+                test_pass = True
+                # gui.rebuild()
+            
+        if test_pass:    
+            self.resonator = cpw
 
-    # except:
-    #     design.delete_component('cpw_'+p['coord'])
-    #     print('there is a cpw building error')
-        # print(anchors, dp.CPW_options)
-        
-    # else:
-        # gui.rebuild()
-        self.resonator = cpw
-
-        ab_options = Dict(cpw_name = cpw.name, distance = p['ab_distance'], dis = '50um', layer_ab_square = str(p['ab_square_layer']), layer_ab = str(p['ab_layer']), total_length = '80 um', chip = 'main', seg_num = '0')
-        airb = ab(design, 'airbridges' + p['coord'], ab_options)
-        
-        # gui.rebuild()
-        self.airbridge = airb
+            ab_options = Dict(cpw_name = cpw.name, distance = p['ab_distance'], dis = '50um', layer_ab_square = str(p['ab_square_layer']), layer_ab = str(p['ab_layer']), total_length = '80 um', chip = 'main', seg_num = '0')
+            airb = ab(design, 'airbridges' + p['coord'], ab_options)
+            
+            # gui.rebuild()
+            self.airbridge = airb
 
         # self.qubit = q
         # self.junction = j

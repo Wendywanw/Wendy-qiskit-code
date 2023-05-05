@@ -1,0 +1,164 @@
+saddd
+saddd
+saddd
+saddd
+saddd
+Design "all_freqs_hfss" info:
+	# eigenmodes    4
+	# variations    1
+Design "all_freqs_hfss" info:
+	# eigenmodes    4
+	# variations    1
+
+        energy_elec_all       = 4.32757036870832e-25
+        energy_elec_substrate = 3.97056864975676e-25
+        EPR of substrate = 91.8%
+
+        energy_mag    = 3.4017597211397e-27
+        energy_mag % of energy_elec_all  = 0.8%
+        
+
+Variation 0  [1/1]
+
+  [1mMode 0 at 4.46 GHz   [1/4][0m
+    Calculating ℰ_magnetic,ℰ_electric
+       (ℰ_E-ℰ_H)/ℰ_E       ℰ_E       ℰ_H
+               99.2%  2.164e-25 1.701e-27
+
+    Calculating junction energy participation ration (EPR)
+	method=`line_voltage`. First estimates:
+	junction        EPR p_0j   sign s_0j    (p_capacitive)
+		Energy fraction (Lj over Lj&Cj)= 98.76%
+	jj1             2.26231e-07  (+)        2.84571e-09
+		Energy fraction (Lj over Lj&Cj)= 98.45%
+	jj2              1.19978  (+)        0.0188648
+		(U_tot_cap-U_tot_ind)/mean=-8.48%
+Calculating Qdielectric_main for mode 0 (0/3)
+p_dielectric_main_0 = 0.9175052769718179
+
+  [1mMode 1 at 5.33 GHz   [2/4][0m
+    Calculating ℰ_magnetic,ℰ_electric
+       (ℰ_E-ℰ_H)/ℰ_E       ℰ_E       ℰ_H
+               99.2%  1.595e-25 1.231e-27
+
+    Calculating junction energy participation ration (EPR)
+	method=`line_voltage`. First estimates:
+	junction        EPR p_1j   sign s_1j    (p_capacitive)
+		Energy fraction (Lj over Lj&Cj)= 98.24%
+	jj1              1.31761  (+)        0.0236349
+		Energy fraction (Lj over Lj&Cj)= 97.81%
+	jj2             2.38537e-07  (+)        5.34849e-09
+		(U_tot_cap-U_tot_ind)/mean=-12.84%
+Calculating Qdielectric_main for mode 1 (1/3)
+p_dielectric_main_1 = 0.9180899581939436
+
+  [1mMode 2 at 6.98 GHz   [3/4][0m
+    Calculating ℰ_magnetic,ℰ_electric
+       (ℰ_E-ℰ_H)/ℰ_E       ℰ_E       ℰ_H
+                0.1%  1.754e-25 1.752e-25
+
+    Calculating junction energy participation ration (EPR)
+	method=`line_voltage`. First estimates:
+	junction        EPR p_2j   sign s_2j    (p_capacitive)
+		Energy fraction (Lj over Lj&Cj)= 97.01%
+	jj1             5.70788e-08  (+)        1.75816e-09
+		Energy fraction (Lj over Lj&Cj)= 96.29%
+	jj2             0.00123328  (+)        4.74849e-05
+		(U_tot_cap-U_tot_ind)/mean=-0.02%
+Calculating Qdielectric_main for mode 2 (2/3)
+p_dielectric_main_2 = 0.8893899798885369
+
+  [1mMode 3 at 8.04 GHz   [4/4][0m
+    Calculating ℰ_magnetic,ℰ_electric
+       (ℰ_E-ℰ_H)/ℰ_E       ℰ_E       ℰ_H
+                0.0%  1.996e-25 1.996e-25
+
+    Calculating junction energy participation ration (EPR)
+	method=`line_voltage`. First estimates:
+	junction        EPR p_3j   sign s_3j    (p_capacitive)
+		Energy fraction (Lj over Lj&Cj)= 96.08%
+	jj1             0.000908457  (+)        3.71e-05
+		Energy fraction (Lj over Lj&Cj)= 95.14%
+	jj2             1.08003e-08  (+)        5.51334e-10
+		(U_tot_cap-U_tot_ind)/mean=-0.02%
+Calculating Qdielectric_main for mode 3 (3/3)
+p_dielectric_main_3 = 0.8885845510314775
+
+ANALYSIS DONE. Data saved to:
+
+C:\data-pyEPR\Project40\all_freqs_hfss\2023-04-28 11-15-42.npz
+
+
+	 Differences in variations:
+
+
+
+ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+Variation 0
+
+Starting the diagonalization
+Finished the diagonalization
+Pm_norm=
+modes
+0    0.843210
+1    0.771782
+2    0.806899
+3    0.738977
+dtype: float64
+
+Pm_norm idx =
+     jj1    jj2
+0  False   True
+1   True  False
+2  False  False
+3  False  False
+*** P (participation matrix, not normlz.)
+            jj1           jj2
+0  2.220423e-07  1.177569e+00
+1  1.287192e+00  2.330291e-07
+2  5.707610e-08  1.233224e-03
+3  9.084234e-04  1.079988e-08
+
+*** S (sign-bit matrix)
+   s_jj1  s_jj2
+0      1      1
+1     -1      1
+2     -1      1
+3      1     -1
+*** P (participation matrix, normalized.)
+   2.2e-07     0.99
+      0.99  2.3e-07
+   5.7e-08   0.0012
+   0.00091  1.1e-08
+
+*** Chi matrix O1 PT (MHz)
+    Diag is anharmonicity, off diag is full cross-Kerr.
+       150 0.000148    0.584 5.97e-06
+  0.000148      171  2.6e-05    0.473
+     0.584  2.6e-05 0.000567 4.71e-08
+  5.97e-06    0.473 4.71e-08 0.000326
+
+*** Chi matrix ND (MHz) 
+       162 0.000161    0.529 5.67e-06
+  0.000161      184 2.07e-05    0.423
+     0.529 2.07e-05 0.000465 3.59e-08
+  5.67e-06    0.423 3.59e-08 0.000263
+
+*** Frequencies O1 PT (MHz)
+0    4312.078618
+1    5157.275751
+2    6982.859397
+3    8040.479705
+dtype: float64
+
+*** Frequencies ND (MHz)
+0    4306.576399
+1    5151.300915
+2    6982.865995
+3    8040.486354
+dtype: float64
+
+*** Q_coupling
+Empty DataFrame
+Columns: []
+Index: [0, 1, 2, 3]

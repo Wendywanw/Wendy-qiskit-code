@@ -14,7 +14,6 @@ import sys
 sys.path.append('Customized_Components')
 import Transmon_property as trans_p
 import Transmon_specifications as jj
-import Transmon_specifications as jj
 from dolan_junction import DolanJunction as junction
 from rounded_single_pad import Round_TransmonPocket_Single as transmon
 
@@ -80,7 +79,7 @@ CPW_options = Dict(trace_width = design.variables['trace_width'],
         hfss_wire_bonds = True,
         q3d_wire_bonds = True,
         fillet='30 um',
-        lead = dict(start_straight='15um', end_straight = '20um'),
+        lead = dict(start_straight='5um', end_straight = '5um'),
         pin_inputs=Dict(
             start_pin=Dict(component='Q1', pin='a'),
             end_pin=Dict(component='TQ1', pin='second_end')), )

@@ -117,7 +117,7 @@ for i in range(10):
     xs.append(str(x0+distance*i)+'mm')
 
 
-def make_first_row(eig_all, rebuild= False):
+def make_first_row(eig_all,design, rebuild= False):
     
     pockets = []
     for i in range(10):
@@ -125,7 +125,7 @@ def make_first_row(eig_all, rebuild= False):
         pocket_options['pos_x'] = qubit_x0[j]
         pocket_options['pos_y'] = qubit_y0[j]
         pocket_options['frequency'] = freq_even[j]
-        pocket_options['coord'] = '({},0)'.format(j)
+        pocket_options['coord'] = '_{}_0_'.format(j)
         pocket_options['rotation'] = qubit_angles0[j]
         p = pocket(gui, design,eig_all = eig_all, sim  = True, options = pocket_options)
         pockets.append(p)
@@ -142,14 +142,14 @@ def make_first_row(eig_all, rebuild= False):
     return pockets
 
 
-def make_rows(eig_all, rows = np.arange(1,10), rebuild = False):
+def make_rows(eig_all,design, rows = np.arange(1,10), rebuild = False):
     pockets = []
     for i in rows:
         poc = []
         for j in range(10):
             pocket_options['pos_x'] = xs[j]
             pocket_options['pos_y'] = qubit_y1[i]
-            pocket_options['coord'] = '({},{})'.format(j,i)
+            pocket_options['coord'] = '_{}_{}_'.format(j,i)
             if i%2 == 1:
                 pocket_options['frequency'] = freq_odd[j]
             else:

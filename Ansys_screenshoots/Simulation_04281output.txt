@@ -1,0 +1,110 @@
+saddd
+Design "all_freqs_hfss" info:
+	# eigenmodes    2
+	# variations    1
+Design "all_freqs_hfss" info:
+	# eigenmodes    2
+	# variations    1
+
+        energy_elec_all       = 4.7924443742212e-25
+        energy_elec_substrate = 4.39943746362137e-25
+        EPR of substrate = 91.8%
+
+        energy_mag    = 3.2492209310131e-27
+        energy_mag % of energy_elec_all  = 0.7%
+        
+
+Variation 0  [1/1]
+
+  [1mMode 0 at 4.09 GHz   [1/2][0m
+    Calculating ℰ_magnetic,ℰ_electric
+       (ℰ_E-ℰ_H)/ℰ_E       ℰ_E       ℰ_H
+               99.4%  2.917e-25 1.876e-27
+
+    Calculating junction energy participation ration (EPR)
+	method=`line_voltage`. First estimates:
+	junction        EPR p_0j   sign s_0j    (p_capacitive)
+		Energy fraction (Lj over Lj&Cj)= 98.70%
+	jj1             2.07911e-07  (+)        2.74317e-09
+		Energy fraction (Lj over Lj&Cj)= 98.31%
+	jj2              1.16122  (+)        0.0199175
+		(U_tot_cap-U_tot_ind)/mean=-6.75%
+Calculating Qdielectric_main for mode 0 (0/1)
+p_dielectric_main_0 = 0.9175905641834405
+
+  [1mMode 1 at 4.79 GHz   [2/2][0m
+    Calculating ℰ_magnetic,ℰ_electric
+       (ℰ_E-ℰ_H)/ℰ_E       ℰ_E       ℰ_H
+               99.3%  2.396e-25 1.625e-27
+
+    Calculating junction energy participation ration (EPR)
+	method=`line_voltage`. First estimates:
+	junction        EPR p_1j   sign s_1j    (p_capacitive)
+		Energy fraction (Lj over Lj&Cj)= 98.22%
+	jj1              1.23912  (+)        0.022423
+		Energy fraction (Lj over Lj&Cj)= 97.70%
+	jj2             2.29628e-07  (+)        5.40193e-09
+		(U_tot_cap-U_tot_ind)/mean=-9.85%
+Calculating Qdielectric_main for mode 1 (1/1)
+p_dielectric_main_1 = 0.9179944763232238
+
+ANALYSIS DONE. Data saved to:
+
+C:\data-pyEPR\Project40\all_freqs_hfss\2023-04-29 00-12-56.npz
+
+
+	 Differences in variations:
+
+
+
+ . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . . 
+Variation 0
+
+Starting the diagonalization
+Finished the diagonalization
+Pm_norm=
+modes
+0    0.873147
+1    0.820188
+dtype: float64
+
+Pm_norm idx =
+     jj1    jj2
+0  False   True
+1   True  False
+*** P (participation matrix, not normlz.)
+            jj1           jj2
+0  2.038508e-07  1.138547e+00
+1  1.211944e+00  2.245921e-07
+
+*** S (sign-bit matrix)
+   s_jj1  s_jj2
+0      1     -1
+1      1      1
+*** P (participation matrix, normalized.)
+     2e-07     0.99
+      0.99  2.2e-07
+
+*** Chi matrix O1 PT (MHz)
+    Diag is anharmonicity, off diag is full cross-Kerr.
+       164 0.000148
+  0.000148      173
+
+*** Chi matrix ND (MHz) 
+       180 0.000154
+  0.000154      188
+
+*** Frequencies O1 PT (MHz)
+0    3923.658955
+1    4614.179878
+dtype: float64
+
+*** Frequencies ND (MHz)
+0    3916.421220
+1    4607.372485
+dtype: float64
+
+*** Q_coupling
+Empty DataFrame
+Columns: []
+Index: [0, 1]
