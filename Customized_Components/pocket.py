@@ -170,7 +170,7 @@ class TransmonPocket():
         #     eig_all.sim.setup.vars[c_name] = Cj
 
         #make the coupled_line_tee
-        dp.TQ_options['down_length'] = '40 um'
+        dp.TQ_options['down_length'] = '42 um'
         dp.TQ_options['coupling_space'] = '{}um'.format(c_gap)
         tqx = design.parse_value(TQx)
         tqy= design.parse_value(TQy)
@@ -233,8 +233,9 @@ class TransmonPocket():
             test_pass = True
         if not test_pass:
             try:
-                dp.CPW_options['lead'] = dict(start_straight='15um', end_straight = '21um')
-                print('tried2')
+                dp.CPW_options['lead'] = dict(start_straight='0um', end_straight = '0um')
+                dp.CPW_options['total_length'] = '4mm'
+                print('tried22')
                 
             # cpw = dp.RouteMixed(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
                 cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
