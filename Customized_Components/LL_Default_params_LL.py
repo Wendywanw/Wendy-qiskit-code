@@ -28,17 +28,20 @@ design.overwrite_enabled = True
 design.chips.main.size['size_x'] = '10 mm'
 design.chips.main.size['size_y'] = '10 mm'
 
-# design.variables['cpw_width'] = '15.95 um'
-# design.variables['cpw_gap'] = '9 um'
+#bias 0.45um
+# try: 
+#     del design.variables['cpw_width']
+# except:
+#     pass
 
-design.variables['cpw_wdith'] = '12.4 um'
-design.variables['cpw_gap'] = '6.99 um'
+design.variables['cpw_wdith'] = '13.3 um'
+design.variables['cpw_gap'] = '6.09 um'
 
 
-design.variables['trace_width'] = '12.4 um'
-cpw_pin_width = 12.4*u.um
-design.variables['trace_gap'] = '6.99 um'
-cpw_gap = 6.99*u.um
+design.variables['trace_width'] = '13.3 um'
+cpw_pin_width = 13.3*u.um
+design.variables['trace_gap'] = '6.09 um'
+cpw_gap = 6.09*u.um
 
 design.variables['pad_buffer_radius'] = '30 um'
 design.variables['buffer_resolution'] = '10'
@@ -48,12 +51,14 @@ renderer_hfss = design.renderers.hfss
 renderer_q3d = design.renderers.q3d
 
 qb_options = dict(
-pad_pocket_distance_top = '40um',
+pad_pocket_distance_top = '39.1um',
+jj_length = '40um',
+jj_pocket_extent = '20.9um',
 connection_pads = dict(
     a = dict(loc_W  = 0, 
             loc_H =  1, 
-            pad_gap = '15um',
-            pad_height = '15um',
+            pad_gap = '14.9um',
+            pad_height = '15.9um',
             pad_width = '80um',
             pad_cpw_extent =  '10um',
             pocket_rise = '0um',
@@ -62,10 +67,10 @@ connection_pads = dict(
 
 
 TQ_options = dict(coupling_length='170 um',
-                prime_width = design.variables['trace_width'],
-               prime_gap = design.variables['trace_gap'],
-               second_width = design.variables['trace_width'],
-               second_gap = design.variables['trace_gap'],
+                prime_width = '13.3um',
+               prime_gap = '6.09um',
+               second_width = '13.3um',
+               second_gap = '6.09um',
                down_length = '60um',
                coupling_space = '5um',
                fillet = '30um',
@@ -102,6 +107,10 @@ trans_options = Dict(trace_width = design.variables['trace_width'],
                  end_pin=Dict(
                      component='TQ2',
                      pin='prime_end')))
+qubit_layer = 5
+junction_layer = 20
+ab_layer = 31
+ab_square_layer = 30
 
 pocket_options = dict(
         pos_x = '0mm', 
@@ -112,10 +121,10 @@ pocket_options = dict(
         coupling_path = '',
         sim = True,
         coord = '(0,0)',
-        qubit_layer = 5,
-        junction_layer = 2, 
-        ab_layer = 8,
-        ab_square_layer = 9,
+        qubit_layer = qubit_layer,
+        junction_layer = junction_layer, 
+        ab_layer = ab_layer,
+        ab_square_layer = ab_square_layer,
         ab_distance = '70um'
         )
 
@@ -161,7 +170,7 @@ def change_inductance(Ljs, eig_all, c1):
 
 def construct_cpw(q,j, TQ, pad_size, offset, extend, gapp, Lj, Cj, TQx,TQy, small, TQ_mir,gui, design, displacement = '0um', buffer = 150*u.um, sim  = True, eig_all = ''):
     gap1 = 0.056
-    gap = 30*u.um
+    gap = 29.1*u.um
     # print(pad_size)
     size = pad_size.to(u.um)
     pocket_width = size+2*gap
