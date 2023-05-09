@@ -77,6 +77,10 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         chip='main',
         cross_radius='8um',
         resolution = '10',
+        junction = 'False',
+        inductor_width = '10um',
+        jj_pocket_extent = '20um',
+        jj_length = '20um',
         _default_connection_pads=Dict(
             connector_type='0',  # 0 = Claw type, 1 = gap type
             claw_length='30um',
@@ -161,6 +165,20 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         #rect_jj = draw.translate(rect_jj, 0, -cross_length-cross_gap/2)
         rect_jj = draw.LineString([(0, -cross_length),
                                    (0, -cross_length - cross_gap)])
+        
+
+        if p.junction == 'True':
+            cut_out = draw.rectangle(p.inductor_width/4, p.jj_pocket_extent/4)
+            cut_out_big = draw.rectangle(p.inductor_width/2, p.jj_pocket_extent/4)
+            cut_out_big = draw.translate(cut_out_big, 0, p.jj_pocket_extent/4)
+            cutout = draw.shapely.ops.unary_union([cut_out, cut_out_big])
+            
+            cutout_top = draw.translate(cutout,0,-p.cross_length)
+            cutout_bot = draw.rotate(cutout, 180, origin=(0,0))
+            cutout_bot = draw.translate(cutout_bot,0,-p.cross_length-p.jj_length)
+
+            center_metal = center_metal.difference(cutout_top)
+            center_metal_etch = draw.shapely.ops.unary_union([center_metal_etch, cutout_bot])
 
         #rotate and translate
         polys = [center_metal, center_metal_top, center_metal_bot, center_metal_etch, center_metal_top_etch, center_metal_bot_etch, rect_jj]
@@ -177,7 +195,8 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         #                    dict(cross_etch=cross_etch),
         #                    subtract=True,
         #                    chip=chip)
-        self.add_qgeometry('junction',
+        if p.junction == 'False':
+            self.add_qgeometry('junction',
                            dict(rect_jj=rect_jj),
                            width=cross_width,
                            chip=chip)
