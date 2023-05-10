@@ -80,7 +80,6 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         junction = 'False',
         inductor_width = '10um',
         jj_pocket_extent = '20um',
-        jj_length = '20um',
         _default_connection_pads=Dict(
             connector_type='0',  # 0 = Claw type, 1 = gap type
             claw_length='30um',
@@ -175,7 +174,7 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
             
             cutout_top = draw.translate(cutout,0,-p.cross_length)
             cutout_bot = draw.rotate(cutout, 180, origin=(0,0))
-            cutout_bot = draw.translate(cutout_bot,0,-p.cross_length-p.jj_length)
+            cutout_bot = draw.translate(cutout_bot,0,-p.cross_length-p.cross_gap)
 
             center_metal = center_metal.difference(cutout_top)
             center_metal_etch = draw.shapely.ops.unary_union([center_metal_etch, cutout_bot])
