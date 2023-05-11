@@ -120,7 +120,6 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         cross_gap = p.cross_gap
         resolution = p.resolution
         radius = p.cross_radius
-        cross_radius = radius
 
         #parameters for the central cross
         max_len = cross_length*2
@@ -129,7 +128,8 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         #parameters for the etched pocket
         max_len_etch = cross_length*2 + cross_gap*2
         radius_etch = radius + cross_gap
-        height_etch = cross_length-cross_width/2 + cross_gap
+        height_etch = cross_length-cross_width/2 
+        width_etch = width+2*cross_gap
 
         # access to chip name
         chip = p.chip
@@ -145,23 +145,24 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
 
         center_metal = rec(max_len, width, same_radius = True, r = radius, resolution = resolution)
         center_metal_side = rec(width, height, same_radius = True, r = radius,  resolution = resolution, d3 = [-1,1], d4 = [1,1])
-        center_metal_bot = draw.translate(center_metal_side, 0, -width/2-height/2,overwrite= True)
+        center_metal_bot = draw.translate(center_metal_side, 0, -width/2-height/2+1e-6,overwrite= True)
         center_metal_top = draw.rotate(center_metal_side, 180, overwrite = True)
-        center_metal_top = draw.translate(center_metal_top, 0, width/2+height/2,overwrite= True)
+        center_metal_top = draw.translate(center_metal_top, 0, width/2+height/2 -1e-6,overwrite= True)
         
         center_metal = draw.shapely.ops.unary_union([center_metal, center_metal_bot, center_metal_top])
 
 
 
-        center_metal_etch = rec(max_len_etch, width+2*cross_gap,same_radius = True, r = radius_etch, resolution = resolution)
-        center_metal_side_etch = rec(width+2*cross_gap, height+2*cross_gap, same_radius = True, r = radius_etch, resolution = resolution, d3 = [-1,1], d4 = [1,1])
-        center_metal_bot_etch = draw.translate(center_metal_side_etch, 0, -width/2-height/2, overwrite= True)
+        center_metal_etch = rec(max_len_etch, width_etch,same_radius = True, r = radius_etch, resolution = resolution)
+        center_metal_side_etch = rec(width_etch, height_etch, same_radius = False, 
+                                     r1 = radius_etch, r2 = radius_etch, r3 = max(0,radius_etch-2*cross_gap), r4 = max(0,radius_etch-2*cross_gap), 
+                                     resolution = resolution, d3 = [-1,1], d4 = [1,1])
+        center_metal_bot_etch = draw.translate(center_metal_side_etch, 0, -height_etch/2-width_etch/2+1e-6, overwrite= True)
         center_metal_top_etch = draw.rotate(center_metal_side_etch, 180, overwrite = True)
-        center_metal_top_etch = draw.translate(center_metal_top_etch, 0, width/2+height/2,overwrite= True)
+        center_metal_top_etch = draw.translate(center_metal_top_etch, 0, height_etch/2+width_etch/2-1e-6,overwrite= True)
         center_metal_etch = draw.shapely.ops.unary_union([center_metal_etch, center_metal_bot_etch, center_metal_top_etch])
-        # The junction/SQUID
-        #rect_jj = draw.rectangle(cross_width, cross_gap)
-        #rect_jj = draw.translate(rect_jj, 0, -cross_length-cross_gap/2)
+
+
         rect_jj = draw.LineString([(0, -cross_length),
                                    (0, -cross_length - cross_gap)])
         
