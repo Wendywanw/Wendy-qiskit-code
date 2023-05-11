@@ -188,7 +188,7 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
 
         # generate qgeometry
         self.add_qgeometry('poly', dict(cross=center_metal), chip=chip)
-        self.add_qgeometry('poly', dict(cross=center_metal_etch), chip=chip, subtract=True)
+        self.add_qgeometry('poly', dict(center_metal_etch=center_metal_etch), chip=chip, subtract=True)
         
         # self.add_qgeometry('poly',
         #                    dict(cross_etch=cross_etch),
