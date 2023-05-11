@@ -23,6 +23,7 @@ qubit_layer = 5
 junction_layer = 20
 ab_layer = 31
 ab_square_layer = 30
+junction_area_layer = 60
 
 CPW_options = Dict(trace_width = '13.3um',
                trace_gap  = '6.09um',
@@ -59,10 +60,11 @@ class TransmonPocket1():
         coord = '(0,0)',
         qubit_layer = qubit_layer,
         junction_layer = junction_layer, 
+        junction_area_layer = junction_area_layer,
         ab_layer = ab_layer,
         ab_square_layer = ab_square_layer,
         ab_distance = '70um',
-        rotation = 0
+        rotation = 0,
         )
     '''Default options for the transmon pocket.'''
     def __init__(self,
@@ -162,7 +164,10 @@ class TransmonPocket1():
                             taper_len='0.5um',
                             jj_gap = '0.14um',
                             Lj = Lj[:-2], 
-                            layer = p['junction_layer'])
+                            layer = p['junction_layer'],
+                            area_layer = p['junction_area_layer'],
+                            area_layer_opt = 'True',
+                            )
                             
             j = junction(design, 'jj'+p['coord'], options = jj_options)
             y_pos = (q.options.pad_height) + '/2' + '+' + (q.options.jj_length) +'-'+ (j.options.total_length)+'/4'#+'+'+q.options.pos_y
@@ -180,12 +185,7 @@ class TransmonPocket1():
         l_name = 'Lj'+ p['coord']
         c_name = 'Cj'+ p['coord']
 
-        # if sim:
-        #     eig_all.sim.renderer.options[l_name] = Lj
-        #     eig_all.sim.renderer.options[c_name] = Cj
-        #     eig_all.sim.setup.vars[l_name] = Lj
-        #     eig_all.sim.setup.vars[c_name] = Cj
-
+        
         #make the coupled_line_tee
         TQ_options['down_length'] = '42 um'
         TQ_options['coupling_space'] = '{}um'.format(c_gap)
@@ -204,8 +204,6 @@ class TransmonPocket1():
                                                     layer = p['qubit_layer'], 
                                                     orientation = -rotation,
                                                     **TQ_options))
-        # gui.rebuild()
-        # print(TQ1.pins['second_end'], 'pin')
         self.Tee = TQ1
 
         #make the cpw
@@ -224,8 +222,6 @@ class TransmonPocket1():
 
             anchor_new[ind] = (x_new, y_new)
         anchors = anchor_new
-        # print('aa')
-        # design.delete_component(cpw_name)
         
         
         
@@ -238,7 +234,6 @@ class TransmonPocket1():
         try:
             CPW_options['lead'] = dict(start_straight='5um', end_straight = '5um')
             print('tried1')
-        # cpw = dp.RouteMixed(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **CPW_options))
             cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **CPW_options))
             
         except:
@@ -254,7 +249,6 @@ class TransmonPocket1():
                 CPW_options['total_length'] = '4mm'
                 print('tried22')
                 
-            # cpw = dp.RouteMixed(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **CPW_options))
                 cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **CPW_options))
             except:
                 self.design.delete_component('cpw_'+p['coord'])
@@ -266,36 +260,32 @@ class TransmonPocket1():
                 
             else:
                 test_pass = True
-                # gui.rebuild()
             
         if test_pass:    
             self.resonator = cpw
 
             ab_options = Dict(cpw_name = cpw.name, distance = p['ab_distance'], dis = '50um', layer_ab_square = str(p['ab_square_layer']), layer_ab = str(p['ab_layer']), total_length = '80 um', chip = 'main', seg_num = '0')
             airb = ab(design, 'airbridges' + p['coord'], ab_options)
-            
-            # gui.rebuild()
             self.airbridge = airb
 
-        # self.qubit = q
-        # self.junction = j
-        # self.resonator = cpw
-        # self.Tee = TQ1
-        # self.airbridge = airb
 
-        # return q,j,cpw, TQ, design,gui, airb
     def connect(self,component, buffer = 0):
+        ''' Connects the qubit to another component.'''
         CPW_options['lead'] = dict(start_straight='5um', end_straight = '5um')
         design = self.design
+
+        #find the position of the coupled line tee
         x = design.parse_value(self.Tee.options.pos_x)
         y = design.parse_value(self.Tee.options.pos_y)
+
+        #specify an anchor, which will be used when there are small turns 
         anchor = OrderedDict()
 
         CPW_options['layer'] = self.options['qubit_layer']
         ys = [3.8,3.65,2.70000,1.750000,0.8000,
-            -0.150000,-1.10000,-2.050000,-3.0000,-3.950000]
+            -0.150000,-1.10000,-2.050000,-3.0000,-3.950000] # this is the y position of the Tees
 
-        if 'pocket' in str(type(component)):
+        if 'pocket' in str(type(component)): #code when we connect two pockets
             name = component.qubit.name[5:]
             self_name = self.qubit.name[5:]
             flag = False
@@ -331,7 +321,6 @@ class TransmonPocket1():
                 anchor[0] = (x_com,y)
                 flag = True
             elif (self.qubit.options['orientation'] == -270) & (x>=3):
-                # print('oops')
                 pin_start = 'prime_start'
                 pin_end = 'prime_start'
                 start_name = self.Tee.name
@@ -348,11 +337,10 @@ class TransmonPocket1():
             else:
                 cpw = short_path(self.design, self_name + 'CPW'+ name,
                             options = CPW_options)
-        elif 'pad' in str(type(component)):
+        elif 'pad' in str(type(component)): # code when we connect to a launchpad 
             self_name = self.qubit.name[5:]
             
             x_com = design.parse_value(component.options.pos_x)
-            # print(component.name)
             y_com = design.parse_value(component.options.pos_y)
             
             name = component.name
@@ -364,7 +352,6 @@ class TransmonPocket1():
                 end_name = self.Tee.name
                 pin_end = 'prime_start'
                 anchor[0] = (-3.9, 4.75)
-                # anchor[1] = (-3.65, 4.5)
             elif (y>=3.9 and x >2):
                 start_name = component.name
                 pin_start= 'tie'
@@ -372,17 +359,13 @@ class TransmonPocket1():
                 pin_end = 'prime_end'
                 anchor[0] = (3.9, 4.75)
             elif x<x_com:
-                # print('1')
                 anchor[0] = (x_com-0.05-buffer,ys[ind])
-                # anchor[1] = (x_com-0.075+buffer,ys[ind])
                 end_name = self.Tee.name
                 pin_end = 'prime_end'
                 start_name = component.name
                 pin_start = 'tie'
             else:
-                # print('2')
                 anchor[0] = (x_com+0.05+buffer,ys[ind])
-                # anchor[1] = (x_com+0.075+buffer,ys[ind])
                 end_name = self.Tee.name
                 pin_end = 'prime_start'
                 start_name = component.name
@@ -393,18 +376,14 @@ class TransmonPocket1():
             CPW_options['pin_inputs'] = pin_inputs
             ops = Dict(anchors = anchor, **CPW_options)
             if np.absolute(y-y_com)<0.06:
-                # CPW_options['fillet'] = str(np.absolute(x-x_com)/2)
                 anchor = OrderedDict()
                 anchor[0] = (x_com-(buffer+0.05)*np.sign(x_com),np.sign(y)*(max(np.absolute(y_com),np.absolute(y))-0.14))
                 anchor[1] = (x_com-(buffer+0.13)*np.sign(x_com),ys[ind])
-                # print('short_segment!', anchor)
             CPW_options['fillet'] = '30um'
-            # print(anchor, x_com)
             cpw = RouteMixed(self.design, self_name + 'CPW'+ name,
                             options = Dict(anchors = anchor, **CPW_options))
         
         self.connection_cpws.append(cpw)
-        # self.gui.rebuild()
 
         ab_options = Dict(cpw_name = cpw.name, 
                           distance = self.options['ab_distance'], 
@@ -416,7 +395,6 @@ class TransmonPocket1():
                           seg_num = '0')
         airb = ab(self.design, 'airbridge_connects' + self.options['coord'] + name, ab_options)
         self.connection_ab.append(airb)
-        # self.gui.rebuild()
         
 
 

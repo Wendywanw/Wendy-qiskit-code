@@ -3,10 +3,18 @@ import astropy.units as u
 from qiskit_metal import draw, Dict
 from qiskit_metal.qlibrary.core import QComponent
 
+# to use the airbridge component, you need to add the following lines into qiskit-metal/qiskit_metal/qlibrary/tlines/anchored_path.py
+# line 190:
+# elif 'air' in component:
+#                continue
+# NOTE: the name of your airbridge component must contain 'air' in it.
+
 
 def equals(a,b):
+    ''' Check if two numbers are equal within 1e-6 tolerance. '''
     return abs(a-b)<1e-6
 def find_line_direction(p1,p2):
+    ''' Find the direction of a line from p1 to p2.'''
     x1,y1 = p1
     x2,y2 = p2
     if x1 == x2:
@@ -25,6 +33,8 @@ def find_line_direction(p1,p2):
     else:
         return ((np.arctan((y2-y1)/(x2-x1))*180/np.pi)+360)%360
 def find_segment_length(p1,p2, type):
+    ''' Find the length of a line from p1 to p2. 
+    when the type is arc, it calculates the arc length'''
     x1,y1 = p1
     x2,y2 = p2
     d1 = np.absolute(x2-x1)
@@ -40,6 +50,7 @@ def find_segment_length(p1,p2, type):
         theta = np.arctan(r_min/r)
         return d1*theta/2
 def find_coordinates(coordinates, r):
+    ''' Breaks the coordinates of cpw into segments and find the start, end, length, angle, type of each segment.'''
     segment_start = []
     segment_end = []
     segment_type = []
@@ -137,7 +148,7 @@ def find_coordinates(coordinates, r):
 
     return segment    
 def make_ab_element(design,cpw,arc_bridge = False):
-    
+    ''' Make the airbridge element using the cpw parameters.'''
     r = design.parse_value(cpw.options.fillet)
     center_pin = design.parse_value(cpw.options.trace_width)
     gap_w = design.parse_value(cpw.options.trace_gap)
@@ -184,6 +195,7 @@ def make_ab_element(design,cpw,arc_bridge = False):
     return top, base, xover_len, out_box_len
 
 def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, start_early_buffer = 0.003, clockwise = 1):
+    ''' Find the next airbridge coordinate on the CPW given a previous one.'''
     last_pt = ab_all['coord'][-1]
     last_len = ab_all['length_remain'][-1]
     seg_num = ab_all['seg_num'][-1]
@@ -309,6 +321,7 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
 
             return ab_all, True, True
 def ab_placement(top, base, coord, angle):
+    ''' Place the airbridge on the CPW.'''
     angle_in_data = angle
     base_new = base
     top_new = top
@@ -325,6 +338,7 @@ def ab_placement(top, base, coord, angle):
     
     return top_new, base_new
 def anti_collision(ab, box_side, xover_len, coord_all):
+    ''' Check if the airbridge is too close to the CPW and adjust the position.'''
     min_distance = 0.01
     x,y = ab['coord'][-1]
     angle = ab['angle'][-1]
@@ -430,6 +444,20 @@ def anti_collision(ab, box_side, xover_len, coord_all):
 
 
 class airbridges(QComponent):
+    ''' A components that draws airbridges on the CPW.
+    
+    Inherits QComponent class.
+
+    Default Options:
+        cpw_name = 'cpw_1', -- name of the cpw to draw airbridges on
+        distance = '70um', -- distance between airbridges
+        layer_ab_square = '5', -- layer of the square part of the airbridge
+        layer_ab = '4', -- layer of the airbridge
+        chip = 'main', 
+        seg_num = '0', -- segment number of the cpw to start drawing airbridges
+        dis = '5um', -- Minimum distance between airbridges
+        
+        '''
     default_options = Dict(
         cpw_name = 'cpw_1',
         distance = '70um',
@@ -472,12 +500,13 @@ class airbridges(QComponent):
         length_remaining = segment['length'][seg_num] - d
         if length_remaining<0:
             pass
-            # raise ValueError('Please Adjust airbridge position')
         ab['length_remain'] = [length_remaining]
         ab['inside_extend'] = [flag]
         x0 += d*np.cos(angle/180*np.pi)
         y0 += d*np.sin(angle/180*np.pi)
         ab['coord'] = [(x0,y0)]
+
+
         #get all the airbridge coordinates
         test = True
         start_early = False
@@ -490,15 +519,13 @@ class airbridges(QComponent):
                 continue
             else:
                 ab, test = anti_collision(ab,box_side,xover_len, segment)
-        # print(ab)
-        #remove bridges too far
+
+        #remove bridges that is placed outside of the CPW
         cor = np.array(coordinates)
         max_x = max(cor[:,0])
         min_x = min(cor[:,0])
         max_y = max(cor[:,1])
         min_y = min(cor[:,1])
-        # print(max_x, min_x, max_y, min_y)
-        # print(cor)
 
         for i in range(len(ab['coord'])):
             x, y = ab['coord'][i]
@@ -508,13 +535,12 @@ class airbridges(QComponent):
                 ab['angle'][i] = None
                 ab['seg_num'][i] = None
                 ab['inside_extend'][i] = None
-                # print(x,y)
+
 
         #place the airbridges:
         for i in range(len(ab['coord'])):
             if ab['coord'][i] == None:
                 continue
-            # print(i)
             angle = ab['angle'][i]
             coord = ab['coord'][i]
             if ab['inside_extend'][i]:
@@ -528,6 +554,8 @@ class airbridges(QComponent):
                 top_all = draw.shapely.unary_union((top_all, top))
                 base_all = draw.shapely.unary_union((base, base_all))
 
+
+        #draw the airbridges
         self.add_qgeometry('poly',
                            dict(top_j=top_all),
                            chip=p.chip, layer = p.layer_ab_square)

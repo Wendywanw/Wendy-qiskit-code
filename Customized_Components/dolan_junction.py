@@ -39,43 +39,32 @@ import Transmon_specifications as jj
 
 
 class DolanJunction(QComponent):
-    """A rrectangle with rounded corners.
+    """A dolan junction that complies with the Lincoln lab design rules.
 
     Inherits QComponent class.
-
-    # 
-                 +1                            +1
-                ________________________________
-            -1  |______ ____           __________|   +1     Y
-                |      |____|         |____|     |          ^
-                |        __________________      |          |
-                |       |     island       |     |          |----->  X
-                |       |__________________|     |
-                |                 |              |
-                |  pocket         x              |
-            -1  |_________________|______________|   +1
-                 
-                 -1                            -1
 
     # .. meta::
     #     Circle Raster
 
     Default Options:
-        * chip = 'main',
-        * pos_x: '0um'
-        * pos_y: '0um' 
-        * pad_width: '20 um'
-        * pad_height: '30 um'
-        * total_length: '80 um'
-        * Lj: '10 nH'
-        * resolution: '5'
-        * Fillet: '5 um'
-        * fat_finger_width: '6 um'
-        * Jc: '0.1' 
-        * rotation: '0'
+        * chip = 'main'
+        * pos_x: '0um' -- x position of the center
+        * pos_y: '0um' -- y position of the center
+        * pad_width: '20 um' -- width of the big pads that connect to the transmon
+        * pad_height: '30 um' -- height of the big pads that connect to the transmon
+        * total_length: '80 um' -- total length of the junction, including the pads
+        * Lj: '10 nH' -- inductance of the junction
+        * resolution: '5' -- number of points used to draw the rounded rectangle
+        * Fillet: '5 um' -- radius of the fillet/rounded corners
+        * fat_finger_width: '6 um' -- width of the fat finger, i.e. the part that tapers down to the junction finger
+        * Jc: '0.1' -- critical current density of the junction
+        * rotation: '0' -- rotation of the junction
+        * layer: '0' -- layer of the junction
+        * area_layer: '1' -- layer of the area that defines the junction
+        * area: 'False' -- whether to draw the area that defines the junction
     """
     default_options = Dict(
-        pos_x = '0um',
+        pos_x = '0um', 
         pos_y = '0um',
         pad_width = '20 um',
         pad_height = '30 um',
@@ -90,7 +79,9 @@ class DolanJunction(QComponent):
         taper_len = '0.5um',
         Jc = '0.1',
         rotation = '0',
-        layer = '0')
+        layer = '0',
+        area_layer = '1',
+        area_layer_opt = 'False')
     """Default drawing options"""
 
     component_metadata = Dict(short_name='Pocket',
@@ -172,6 +163,7 @@ class DolanJunction(QComponent):
         components = draw.rotate(components, p.orientation, origin=(0, 0))
         components = draw.translate(components, p.pos_x, p.pos_y)
         top, bot = components
+        box = draw.rectangle(pad_width, p.total_length, p.pos_x, p.pos_y)
         
         
         # Use the geometry to create Metal qgeometry
@@ -181,6 +173,10 @@ class DolanJunction(QComponent):
         self.add_qgeometry('poly',
                            dict(bot_j=bot),
                            chip=chip, layer = p.layer)
+        if p.area_layer_opt == 'True':
+            self.add_qgeometry('poly',
+                            dict(box=box),
+                            chip=chip, layer = p.area_layer)
         # self.add_qgeometry('poly', dict(sub = rec2(p.pad_width, p.total_length)), 
         #                    subtract=True, 
         #                    chip=chip)
