@@ -22,6 +22,7 @@ import Transmon_property as trans_p
 import Transmon_specifications as jj
 from dolan_junction import DolanJunction as junction
 from rounded_single_pad import Round_TransmonPocket_Single as transmon
+from cutout import Cutout
 
 #teaches the code to ignore shapely warnings that are not relevant to the code
 import shapely
@@ -33,8 +34,8 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 # initialize the instance for design and design variables
 design = designs.DesignPlanar({}, True)
 design.overwrite_enabled = True
-design.chips.main.size['size_x'] = '10 mm'
-design.chips.main.size['size_y'] = '10 mm'
+design.chips.main.size['size_x'] = '10.15 mm'
+design.chips.main.size['size_y'] = '10.15 mm'
 design.variables['cpw_wdith'] = '13.3 um'
 design.variables['cpw_gap'] = '6.09 um'
 design.variables['trace_width'] = '13.3 um'

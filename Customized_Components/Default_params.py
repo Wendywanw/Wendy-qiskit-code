@@ -26,7 +26,7 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 design = designs.DesignPlanar({}, True)
 design.overwrite_enabled = True
 design.chips.main.size['size_x'] = '10 mm'
-design.chips.main.size['size_y'] = '10 mm'
+design.chips.main.size['size_y'] = '10mm'
 
 # design.variables['cpw_width'] = '15.95 um'
 # design.variables['cpw_gap'] = '9 um'

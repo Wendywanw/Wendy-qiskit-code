@@ -15,7 +15,7 @@ import Transmon_property as trans_p
 import Transmon_specifications as jj
 from dolan_junction import DolanJunction as junction
 import Default_params as dp
-from pocket import TransmonPocket as pocket
+from pocket import TransmonPocket as pocket_LL
 
 from qiskit_metal.qlibrary.terminations.launchpad_wb import LaunchpadWirebond
 from qiskit_metal import MetalGUI, Dict
@@ -98,7 +98,8 @@ pocket_options = dict(
         ab_layer = 8,
         ab_square_layer = 9,
         ab_distance = '70um',
-        rotation = 90
+        rotation = 90,
+        jj_orientation = 180
         )
 
 qubit_y1 = ['3.8mm','3.65mm','2.70000mm','1.750000mm','0.8000mm',

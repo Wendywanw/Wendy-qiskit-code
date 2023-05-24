@@ -167,7 +167,7 @@ def make_ab_element(design,cpw,arc_bridge = False):
         xover_width = 0.01
     else:
         print('error!!!')
-    out_box_len = box_side + 0.002*2
+    out_box_len = box_side + 0.0015*2
     r_in = r-center_pin/2-gap_w
     if r_in < out_box_len:
         # print('error!!!')
