@@ -14,7 +14,7 @@ from rounded_single_pad import Round_TransmonPocket_Single as transmon
 import Transmon_property as trans_p
 import Transmon_specifications as jj
 from dolan_junction import DolanJunction as junction
-import Default_params as dp
+import LL_Default_params_LL as dp
 from pocket import TransmonPocket as pocket_LL
 
 from qiskit_metal.qlibrary.terminations.launchpad_wb import LaunchpadWirebond
