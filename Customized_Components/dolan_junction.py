@@ -147,8 +147,10 @@ class DolanJunction(QComponent):
 
         thin_finger_width = (jj.find_junction_area(Lj, Jc)/(p.jj_gap_actual*u.mm)).to(u.mm).value
         thin_finger = rec2(thin_finger_width, p.thin_finger_len)
+        thin_finger_long = rec2(thin_finger_width, p.thin_finger_len+jj_gap*2)
         d = -(l - p.thin_finger_len)/2+jj_gap
         thin_finger = draw.translate(thin_finger, 0, d)
+        thin_finger_long = draw.translate(thin_finger_long, 0, d)
 
         h = total_height/2-pad_height-fat_finger_len+l/2
         taper = draw.Polygon([(-fat_finger_width/2,h/2),
@@ -158,12 +160,13 @@ class DolanJunction(QComponent):
 
         top = draw.shapely.ops.unary_union([pad_top, finger_top, thin_finger, taper])
         bot = draw.shapely.ops.unary_union([pad_bot, finger_bot])
+        jj_poly = draw.shapely.ops.unary_union([thin_finger_long, taper])
 
-        components = [top, bot]
+        components = [top, bot, jj_poly]
         components = draw.rotate(components, p.orientation, origin=(0, 0))
         components = draw.translate(components, p.pos_x, p.pos_y)
-        top, bot = components
-        box = draw.rectangle(pad_width, p.total_length, p.pos_x, p.pos_y)
+        top, bot, jj_poly = components
+        # box = draw.rectangle(pad_width, p.total_length, p.pos_x, p.pos_y)
         
         
         # Use the geometry to create Metal qgeometry
@@ -175,7 +178,7 @@ class DolanJunction(QComponent):
                            chip=chip, layer = p.layer)
         if p.area_layer_opt == 'True':
             self.add_qgeometry('poly',
-                            dict(box=box),
+                            dict(jj_poly=jj_poly),
                             chip=chip, layer = p.area_layer)
         # self.add_qgeometry('poly', dict(sub = rec2(p.pad_width, p.total_length)), 
         #                    subtract=True, 
