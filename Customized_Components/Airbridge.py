@@ -157,13 +157,13 @@ def make_ab_element(design,cpw,arc_bridge = False):
     box_side = 0
     xover_width = 0
     if 0.05<=xover_len<=0.016:
-        box_side = 0.008
+        box_side = 0.008-1e-5
         xover_width = 0.005
     elif 0.016<xover_len<=0.027:
-        box_side = 0.01
+        box_side = 0.01-1e-5
         xover_width = 0.0075
     elif 0.027<xover_len<=0.032:
-        box_side = 0.014
+        box_side = 0.014-1e-5
         xover_width = 0.01
     else:
         print('error!!!')
