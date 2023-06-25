@@ -199,7 +199,7 @@ def make_ab_element(design,cpw,arc_bridge = False):
     top = draw.shapely.unary_union((sq_in_left, sq_in_right))
     return top, base, xover_len, out_box_len
 
-def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, start_early_buffer = 0.007, clockwise = 1):
+def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, start_early_buffer = 0.005, clockwise = 1):
     ''' Find the next airbridge coordinate on the CPW given a previous one.'''
     last_pt = ab_all['coord'][-1]
     last_len = ab_all['length_remain'][-1]
@@ -517,7 +517,7 @@ class airbridges(QComponent):
         start_early = False
         while test:
             
-            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side/2)
+            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side/2+r)
             if not (test):
                 break
             elif start_early:
