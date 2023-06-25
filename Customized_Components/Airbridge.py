@@ -517,7 +517,7 @@ class airbridges(QComponent):
         start_early = False
         while test:
             
-            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side/2+r)
+            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side)
             if not (test):
                 break
             elif start_early:
