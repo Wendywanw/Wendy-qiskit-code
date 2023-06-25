@@ -149,9 +149,9 @@ class DolanJunction(QComponent):
             finger_top = draw.translate(fat_finger, 0,fat_finger_len0/2.+l/2)
             finger_bot = draw.translate(fat_finger, 0,-fat_finger_len0/2.-l/2)
         else:
-            fat_fingerb = rec2(fat_finger_width-1e-3, fat_finger_len)
-            fat_finger = rec2(fat_finger_width, fat_finger_len)
-            finger_top = draw.translate(fat_finger, 0,fat_finger_len0/2.+l/2)
+            fat_fingerb = rec2(fat_finger_width-2e-3, fat_finger_len)
+            # fat_finger = rec2(fat_finger_width, fat_finger_len)
+            finger_top = draw.translate(fat_fingerb, 0,fat_finger_len0/2.+l/2)
             finger_bot = draw.translate(fat_fingerb, 0,-fat_finger_len0/2.-l/2)
             translation = fat_finger_width/2 + (p.thin_finger_len+p.taper_len+p.jj_gap)/2
             finger_top = draw.translate(finger_top, -translation,0)
@@ -167,39 +167,53 @@ class DolanJunction(QComponent):
         thin_finger_long = draw.translate(thin_finger_long, 0, d)
 
         h = total_height/2-pad_height-fat_finger_len0+l/2
-        taper = draw.Polygon([(-fat_finger_width/2,h/2+1e-3),
-                              (fat_finger_width/2,h/2+1e-3),
+        taper = draw.Polygon([(-fat_finger_width/2,h/2+2e-3),
+                              (fat_finger_width/2,h/2+2e-3),
                                 (fat_finger_width/2,h/2),
                               (thin_finger_width/2, d+thin_len/2),
                               (-thin_finger_width/2, d+thin_len/2),
                               (-fat_finger_width/2,h/2),])
+        taper1 = draw.Polygon([ (fat_finger_width/2,h/2),
+                              (thin_finger_width/2, d+thin_len/2),
+                              (-thin_finger_width/2, d+thin_len/2),
+                              (-fat_finger_width/2,h/2),])
+        recs = draw.Polygon([(-fat_finger_width/2,-h/2-2e-3),
+                              (fat_finger_width/2,-h/2-2e-3),
+                                (fat_finger_width/2,-h/2),
+                              (-fat_finger_width/2,-h/2),])
 
         top = draw.shapely.ops.unary_union([pad_top, finger_top])
-        finger = draw.shapely.ops.unary_union([thin_finger, taper])
-        bot = draw.shapely.ops.unary_union([pad_bot, finger_bot])
-        jj_poly = draw.shapely.ops.unary_union([thin_finger_long, taper])
+        finger = draw.shapely.ops.unary_union([thin_finger, taper, recs])
+        finger1 = draw.shapely.ops.unary_union([thin_finger, taper1, recs])
+        # bot = draw.shapely.ops.unary_union([pad_bot, finger_bot])
+        jj_poly = draw.shapely.ops.unary_union([thin_finger_long, taper1])
         
-        components = [top, bot, ]
+        components = [top, pad_bot, finger_bot,recs]
         if p.orientation%180 != 0:
             components = draw.rotate(components, p.orientation, origin=(0, 0))
         components = draw.translate(components, p.pos_x, p.pos_y)
         if special_jj:
-            components = draw.translate(components, -1e-3, 0)
-            top, bot,  = components
-            bot = draw.translate(bot, 1e-3/2, 0)
+            components = draw.translate(components, -2e-3, 0)
+            top, pad_bot, finger_bot,recs  = components
+            pad_bot = draw.translate(pad_bot, 3e-3, 0)
+            top = draw.translate(top, 1e-3, 0)
+            finger_bot = draw.translate(finger_bot, 3e-3, 0)
         else: 
-            top, bot,  = components
+            top, pad_bot, finger_bot, recs = components
         
         components = draw.rotate([finger,jj_poly], p.jj_orientation, origin = (0,0))
         finger, jj_poly = draw.translate(components, p.pos_x, p.pos_y)
 
-        all = draw.shapely.ops.unary_union([top,finger, bot])
+        all = draw.shapely.ops.unary_union([top, finger_bot, pad_bot, finger])
         
         
         # Use the geometry to create Metal qgeometry
         self.add_qgeometry('poly',
                            dict(all=all),
                            chip=chip, layer = p.layer)
+        # self.add_qgeometry('poly',
+        #                    dict(finger=finger),
+        #                    chip=chip, layer = p.layer)
         # self.add_qgeometry('poly',
         #                    dict(bot_j=bot),
         #                    chip=chip, layer = p.layer)

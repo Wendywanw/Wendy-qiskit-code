@@ -153,21 +153,26 @@ def make_ab_element(design,cpw,arc_bridge = False):
     center_pin = design.parse_value(cpw.options.trace_width)
     gap_w = design.parse_value(cpw.options.trace_gap)
 
-    xover_len = center_pin + 2*gap_w
+    xover_len = center_pin + 2.3*gap_w
     box_side = 0
     xover_width = 0
+    box_height = 0
     if 0.05<=xover_len<=0.016:
-        box_side = 0.008-1e-5
         xover_width = 0.005
+        box_side = xover_width+0.0005
+        box_height = box_side-0.0005
     elif 0.016<xover_len<=0.027:
-        box_side = 0.01-1e-5
         xover_width = 0.0075
+        box_side = xover_width+0.0005
+        box_height = box_side-0.0005
     elif 0.027<xover_len<=0.032:
-        box_side = 0.014-1e-5
         xover_width = 0.01
+        box_side = xover_width+0.0005
+        box_height = box_side-0.0005
     else:
         print('error!!!')
     out_box_len = box_side + 0.0015*2
+    out_box_height = box_height + 0.0015*2
     r_in = r-center_pin/2-gap_w
     if r_in < out_box_len:
         # print('error!!!')
@@ -176,11 +181,11 @@ def make_ab_element(design,cpw,arc_bridge = False):
         ab_inside_extend = r_in - np.sqrt(r_in**2 - out_box_len**2)
 
         
-    square_in = draw.rectangle(box_side, box_side)
-    square_out = draw.rectangle(out_box_len, out_box_len)
+    square_in = draw.rectangle(box_height, box_side)
+    square_out = draw.rectangle(out_box_height, out_box_len)
     squares = [square_in, square_out]
-    sq_in_left, sq_out_left = draw.translate(squares,-xover_len/2-out_box_len/2,0)
-    sq_in_right, sq_out_right = draw.translate(squares,xover_len/2+out_box_len/2,0)
+    sq_in_left, sq_out_left = draw.translate(squares,-xover_len/2-out_box_height/2,0)
+    sq_in_right, sq_out_right = draw.translate(squares,xover_len/2+out_box_height/2,0)
     
     if arc_bridge == True:
         xover_rec = draw.rectangle(xover_len+ ab_inside_extend, xover_width )
@@ -194,7 +199,7 @@ def make_ab_element(design,cpw,arc_bridge = False):
     top = draw.shapely.unary_union((sq_in_left, sq_in_right))
     return top, base, xover_len, out_box_len
 
-def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, start_early_buffer = 0.003, clockwise = 1):
+def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, start_early_buffer = 0.007, clockwise = 1):
     ''' Find the next airbridge coordinate on the CPW given a previous one.'''
     last_pt = ab_all['coord'][-1]
     last_len = ab_all['length_remain'][-1]
@@ -215,7 +220,7 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
         ab_all['angle'].append(segment_all['angle'][seg_num+1])#+180*clockwise)
         ab_all['inside_extend'].append(False)
         return ab_all, True, False
-    if last_len >= distance:
+    if last_len >= (distance):
         if (last_len-distance)<start_early_buffer:
             # ab_all['seg_num'][-1] = seg_num
             # print(seg_num<len(segment_all['angle']))
@@ -263,7 +268,7 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
     else:
         # print(segment_all, seg_num)
         smaller = True
-        len_needed = distance-last_len
+        len_needed = distance-last_len+0.1
         while smaller:
             # print(seg_num, len_needed)
             seg_num += 1
