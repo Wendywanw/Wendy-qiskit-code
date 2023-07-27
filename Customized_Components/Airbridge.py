@@ -153,7 +153,7 @@ def make_ab_element(design,cpw,arc_bridge = False):
     center_pin = design.parse_value(cpw.options.trace_width)
     gap_w = design.parse_value(cpw.options.trace_gap)
 
-    xover_len = center_pin + 2.3*gap_w
+    xover_len = center_pin + 2.1*gap_w
     box_side = 0
     xover_width = 0
     box_height = 0
@@ -163,7 +163,7 @@ def make_ab_element(design,cpw,arc_bridge = False):
         box_height = box_side-0.0005
     elif 0.016<xover_len<=0.027:
         xover_width = 0.0075
-        box_side = xover_width+0.0005
+        box_side = xover_width+0.003
         box_height = box_side-0.0005
     elif 0.027<xover_len<=0.032:
         xover_width = 0.01
@@ -199,7 +199,7 @@ def make_ab_element(design,cpw,arc_bridge = False):
     top = draw.shapely.unary_union((sq_in_left, sq_in_right))
     return top, base, xover_len, out_box_len
 
-def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, start_early_buffer = 0.005, clockwise = 1):
+def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, start_early_buffer = 0.0005, clockwise = 1):
     ''' Find the next airbridge coordinate on the CPW given a previous one.'''
     last_pt = ab_all['coord'][-1]
     last_len = ab_all['length_remain'][-1]
@@ -221,7 +221,7 @@ def find_next_ab(segment_all, distance, ab_all, cpw_turn_radi, start_early, star
         ab_all['inside_extend'].append(False)
         return ab_all, True, False
     if last_len >= (distance):
-        if (last_len-distance)<start_early_buffer:
+        if (last_len-distance)<start_early_buffer*2:
             # ab_all['seg_num'][-1] = seg_num
             # print(seg_num<len(segment_all['angle']))
             return ab_all, seg_num<(len(segment_all['angle'])-1), True
@@ -342,7 +342,7 @@ def ab_placement(top, base, coord, angle):
 
     
     return top_new, base_new
-def anti_collision(ab, box_side, xover_len, coord_all):
+def anti_collision(ab, box_side, xover_len, coord_all,start_early_buffer):
     ''' Check if the airbridge is too close to the CPW and adjust the position.'''
     min_distance = 0.01
     x,y = ab['coord'][-1]
@@ -375,18 +375,21 @@ def anti_collision(ab, box_side, xover_len, coord_all):
                 x_end, y_end = coord_all['end'][seg_num]
                 x_end -= np.cos(np.radians(seg_angle))*box_side
                 if x_start<x<x_end or x_end<x<x_start:
-                    ab['length_remain'][-1] -= change_needed
+                    ab['length_remain'][-1] -= change_needed*2
                     ab['coord'][-1] = (x,y)
                     # print(x,y)
-                    return ab, True
+                    return ab, True, False
                 elif x_start<x_end<x or x_start>x_end>x:
+                    ab['coord'] = ab['coord'][:-1]
+                    ab['length_remain'] = ab['length_remain'][:-1]
+                    ab['angle'] = ab['angle'][:-1]
+                    ab['seg_num'] = ab['seg_num'][:-1]
+                    ab['inside_extend'] = ab['inside_extend'][:-1]
+                    
                     if (seg_num+1)>len(coord_all['length']):
-                        ab['coord'] = ab['coord'][:-1]
-                        ab['length_remain'] = ab['length_remain'][:-1]
-                        ab['angle'] = ab['angle'][:-1]
-                        ab['seg_num'] = ab['seg_num'][:-1]
-                        ab['inside_extend'] = ab['inside_extend'][:-1]
-                        return ab, False
+                        return ab, False, False
+                    else:
+                        return ab, True, True
                 else:
                     x_new = x0+np.cos(seg_angle)*box_side
                     len_remain = coord_all['length'][seg_num]-np.absolute(coord_all['start'][seg_num][0] - x_new)
@@ -395,6 +398,8 @@ def anti_collision(ab, box_side, xover_len, coord_all):
                     ab['angle'].append(seg_angle)
                     ab['seg_num'].append(seg_num)
                     ab['inside_extend'].append(False)
+                    return ab, True, False
+
     else:
         bol = [(i % 180 != 0) for i in ab['angle']]
         coords = np.array(ab['coord'])[bol]
@@ -426,15 +431,18 @@ def anti_collision(ab, box_side, xover_len, coord_all):
                     ab['length_remain'][-1] -= change_needed
                     ab['coord'][-1] = (y,x)
                     # print(y,x, change_needed)
-                    return ab, True
+                    return ab, True, False
                 elif x_start<x_end<x or x_start>x_end>x:
+                    
+                    ab['coord'] = ab['coord'][:-1]
+                    ab['length_remain'] = ab['length_remain'][:-1]
+                    ab['angle'] = ab['angle'][:-1]
+                    ab['seg_num'] = ab['seg_num'][:-1]
+                    ab['inside_extend'] = ab['inside_extend'][:-1]
                     if (seg_num+1)>len(coord_all['length']):
-                        ab['coord'] = ab['coord'][:-1]
-                        ab['length_remain'] = ab['length_remain'][:-1]
-                        ab['angle'] = ab['angle'][:-1]
-                        ab['seg_num'] = ab['seg_num'][:-1]
-                        ab['inside_extend'] = ab['inside_extend'][:-1]
-                        return ab, False
+                        return ab, False, False
+                    else:
+                        return ab, True, True
                 else:
                     x_new = x0+np.cos(seg_angle)*box_side
                     len_remain = coord_all['length'][seg_num]-np.absolute(coord_all['start'][seg_num][0] - x_new)
@@ -443,7 +451,8 @@ def anti_collision(ab, box_side, xover_len, coord_all):
                     ab['angle'].append(seg_angle)
                     ab['seg_num'].append(seg_num)
                     ab['inside_extend'].append(False)
-    return ab, True
+                    return ab, True, False
+    return ab, True, False
 
 
 
@@ -517,13 +526,16 @@ class airbridges(QComponent):
         start_early = False
         while test:
             
-            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side)
+            ab, test, start_early = find_next_ab(segment, dis, ab, r, start_early, start_early_buffer = box_side/2)
             if not (test):
                 break
             elif start_early:
                 continue
             else:
-                ab, test = anti_collision(ab,box_side,xover_len, segment)
+                
+                cc= anti_collision(ab,box_side,xover_len, segment,box_side)
+                # print(cc,' a')
+                ab, test,start_early  = cc
 
         #remove bridges that is placed outside of the CPW
         cor = np.array(coordinates)

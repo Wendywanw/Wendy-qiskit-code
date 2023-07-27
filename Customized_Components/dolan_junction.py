@@ -74,7 +74,7 @@ class DolanJunction(QComponent):
         Lj = '10',
         resolution = '5',
         fillet = '3 um',
-        fat_finger_width = '6 um',
+        fat_finger_width = '5 um',
         thin_finger_len = '1.36um',
         taper_len = '0.5um',
         Jc = '0.1',
