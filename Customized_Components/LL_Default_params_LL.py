@@ -247,12 +247,12 @@ def construct_cpw_qubit(q,j, TQ, freq, gui, design, eig_all = '', displacement =
     ''' construct the cpw and the qubit'''
     guess_all = pd.read_csv(guess_path)
     guesses = slice_data(guess_all, freq)
-    size = guesses['Sizes (um)']*u.um
+    size = guesses['Sizes (um)']*u.um+0.9*u.um
     # print(size)
-    buffer = guesses['Buffers (um)']*u.um
+    buffer = guesses['Buffers (um)']*u.um+0.9*u.um
     offset = guesses['Offsets (mm)']
-    coupling_len = guesses['Coupling_len(um)']*u.um
-    coupling_gap = guesses['Coupling_gap(um)']*u.um
+    coupling_len = guesses['Coupling_len(um)']*u.um+0.45*u.um
+    coupling_gap = guesses['Coupling_gap(um)']*u.um-0.9*u.um
     Lj = guesses['Ljs']
     Cj = jj.find_junction_capacitance(int(Lj[:-2])*u.nH)
     
