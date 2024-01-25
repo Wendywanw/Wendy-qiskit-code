@@ -147,11 +147,7 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         center_metal_side = rec(width, height, same_radius = True, r = radius,  resolution = resolution, d3 = [-1,1], d4 = [1,1])
         center_metal_bot = draw.translate(center_metal_side, 0, -width/2-height/2+1e-6,overwrite= True)
         center_metal_top = draw.rotate(center_metal_side, 180, overwrite = True)
-<<<<<<< Updated upstream
         center_metal_top = draw.translate(center_metal_top, 0, width/2+height/2 -1e-6,overwrite= True)
-=======
-        center_metal_top = draw.translate(center_metal_top, 0, width/2+height/2-1e-6,overwrite= True)
->>>>>>> Stashed changes
         
         center_metal = draw.shapely.ops.unary_union([center_metal, center_metal_bot, center_metal_top])
 
