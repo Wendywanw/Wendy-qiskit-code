@@ -132,7 +132,8 @@ pocket_options = dict(
         junction_area_layer = junction_area_layer,
         ab_layer = ab_layer,
         ab_square_layer = ab_square_layer,
-        ab_distance = '70um'
+        ab_distance = '70um',
+        jc = '0.1'
         )
 
 def init_q3d_sim(max_passes = 20, min_passes =10, wb_threshold = '72um'):

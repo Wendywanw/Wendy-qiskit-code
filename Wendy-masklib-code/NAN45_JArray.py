@@ -35,7 +35,7 @@ from maskLib.dcLib import ResistanceBar, ResistanceBarBilayer, ResistanceBarNega
 # wafer setup
 # ===============================================================================
 
-w = m.Wafer('NAN45_Jarray_v1','DXF/',7000,7000,padding=500,waferDiameter=55000,sawWidth=200,#m.sawL_ws['8A'],
+w = m.Wafer('NANK04','DXF/',7000,7000,padding=1000,waferDiameter=100000,sawWidth=200,#m.sawL_ws['8A'],
                 frame=1,solid=0,multiLayer=1)
 #set wafer properties
 # w.frame: draw frame layer?
@@ -345,7 +345,7 @@ class EtchTestChip(m.Chip7mm):
         m.Chip7mm.__init__(self,wafer,chipID,layer,defaults={'w':20, 's':10, 'radius':300,'r_out':10,'r_ins':10,'curve_pts':30})
         
         #XOR square to cover chip
-        self.add(dxf.rectangle(self.center,6500,6500,halign=const.CENTER,valign=const.MIDDLE,layer='XOR',bgcolor=self.wafer.bg('XOR')))
+        self.add(dxf.rectangle(self.center,6500,6500,halign=const.CENTER,valign=const.MIDDLE,layer='XOR3',bgcolor=self.wafer.bg('XOR3')))
         
         #optical markers
         doMirrored(MarkerCross, self, (2900,2900),linewidth=1, chipCentered=True,layer='MARKERS')
@@ -591,6 +591,8 @@ class QSearchChip6(m.Chip7mm):
         straight_length2=94 #length of straight cpw after meanders
         pincer_tee_r=5        
         
+        self.add(dxf.rectangle(self.center,6700,6700,halign=const.CENTER,valign=const.MIDDLE,layer='XOR3',bgcolor=self.wafer.bg('XOR3')))
+
         #inductively coupled hanger resonators
         for i in range(6):
             s1 = s0.cloneAlongLast((xdist/2 + res_spacing*(-1+indices[i]//2)-coupler_length/2,pow(-1,indices[i])*(half_trace + seps[i] + half_trace)))
@@ -660,9 +662,9 @@ class InverseQSearchChip6(m.Chip7mm):
             s.shiftPos(340)
             
         #XOR square to cover whole chip-- first layer
-        self.add(dxf.rectangle(self.center,6700,5000,halign=const.CENTER,valign=const.MIDDLE,layer='BASEMETAL',bgcolor=self.wafer.bg('BASEMETAL')))
-        self.add(dxf.rectangle(self.centered((0,5000/2)),5400-2*900,850,halign=const.CENTER,valign=const.TOP,layer='BASEMETAL',bgcolor=self.wafer.bg('BASEMETAL')))
-        self.add(dxf.rectangle(self.centered((0,-5000/2)),5400,850,halign=const.CENTER,valign=const.BOTTOM,layer='BASEMETAL',bgcolor=self.wafer.bg('BASEMETAL')))
+        self.add(dxf.rectangle(self.center,6700,5000,halign=const.CENTER,valign=const.MIDDLE,layer='BASEMETAL1',bgcolor=self.wafer.bg('BASEMETAL1')))
+        self.add(dxf.rectangle(self.centered((0,5000/2)),5400-2*900,850,halign=const.CENTER,valign=const.TOP,layer='BASEMETAL1',bgcolor=self.wafer.bg('BASEMETAL1')))
+        self.add(dxf.rectangle(self.centered((0,-5000/2)),5400,850,halign=const.CENTER,valign=const.BOTTOM,layer='BASEMETAL1',bgcolor=self.wafer.bg('BASEMETAL1')))
         
         #XOR square to cover whole chip-- second layer
         self.add(dxf.rectangle(self.center,6800,6800,halign=const.CENTER,valign=const.MIDDLE,layer='SECONDLAYER',bgcolor=self.wafer.bg('SECONDLAYER')))
@@ -733,7 +735,117 @@ class InverseQSearchChip6(m.Chip7mm):
         #ResistanceBarBilayer(self,m.Structure(self,self.centered((0,3000))),secondlayer='XOR')
         #ResistanceBarNegative(self,m.Structure(self,self.centered((0,-3000))))
 
-class ResonatorChip6(m.Chip7mm):
+class ResonatorChipchip(m.Chip7mm):
+    def __init__(self,wafer,chipID,layer,
+                 L_ws =       [320,305,290,280,265,250], #Lw the wiggle length of each resonator (sets the resonator frequency) (lo to high freq)
+                 seps =       [200, 220,240,220,260,280],#resonator distance to cpw (sets each resonator's coupling)
+                 indices =    [2,0,5,3,1,4], #these indices are chosen so no two adjacent resonators are close in frequency (to limit crosstalk)
+                 res_spacing=1200 # how far apart the resonators are
+                 ):
+        m.Chip7mm.__init__(self,wafer,chipID,layer,defaults={'w':10, 's':6, 'radius':300,'r_out':10,'r_ins':10,'curve_pts':30})
+        
+        for s in self.structures:
+            #move away from edge of chip
+            s.shiftPos(340)
+            
+        #XOR square to cover whole chip-- first layer
+        self.add(dxf.rectangle(self.center,6700,5000,halign=const.CENTER,valign=const.MIDDLE,layer='BASEMETAL3',bgcolor=self.wafer.bg('BASEMETAL3')))
+        self.add(dxf.rectangle(self.centered((0,5000/2)),5400-2*900,850,halign=const.CENTER,valign=const.TOP,layer='BASEMETAL3',bgcolor=self.wafer.bg('BASEMETAL3')))
+        self.add(dxf.rectangle(self.centered((0,-5000/2)),5400,850,halign=const.CENTER,valign=const.BOTTOM,layer='BASEMETAL3',bgcolor=self.wafer.bg('BASEMETAL3')))
+        
+        #XOR square to cover whole chip-- second layer
+        self.add(dxf.rectangle(self.center,6800,6800,halign=const.CENTER,valign=const.MIDDLE,layer='XOR',bgcolor=self.wafer.bg('XOR')))
+        
+        #optical markers
+        doMirrored(MarkerCross, self, (2900,2900),linewidth=5, chipCentered=True,layer='MARKERS')
+        
+        half_trace = self.defaults['w']/2 + self.defaults['s']
+                
+        CPW_launcher(self,0,padw=250,pads=80,r_ins=30,r_out=30,l_taper=400,layer='XOR4')
+        CPW_launcher(self,5,padw=250,pads=80,r_ins=30,r_out=30,l_taper=400,layer='XOR4')        
+        
+        #calculate separation between the two structures
+        xdist = self.structures[5].start[0] - self.structures[0].start[0]
+        CPW_straight(self,0,xdist,layer='XOR4')
+        
+        #make local copy of s0
+        s0  = self.structures[0]
+        
+        #write the resonators
+        for i in range(6):
+            # make a clone of s0 at varying distances along the main bus, some distance off to the side. 
+            # alternate offseting left and right of the bus, and set the new direction to point away from the main bus
+            s1 = s0.cloneAlongLast((xdist/2 + res_spacing*(-1.25+0.5*indices[i]),pow(-1,indices[i])*(half_trace + seps[i])),newDirection=(90+180*indices[i])%360)
+            # this forms the jellyfish resonator. the capacitor is defined by w_cap and s_cap, similar to a cpw
+            # the first two arguments are the width and height of the resonator. Weird things happen if the width is too small or height too short...
+            # we specify the width of the inductor, and instead of giving a overall wire length, we set the number of turns, and the max wiggle length
+            # wiggle length is half the distance from the the edge of one bend to the opposite side
+            # we also want the wiggles to bunch near the capacitor (ialign) although this doesn't matter since we chose the height of the resonator to be exact
+            JellyfishResonator(self,s1,500,412,None,r_ind=4,w_ind=3,w_cap=40,s_cap=20,maxWidth=L_ws[i]/2.,nTurns=19,ialign=const.TOP,layer='XOR4')
+            #label the resonator for debugging
+            self.add(dxf.text(str(i),vadd(s1.start,(360,80)),height=48,layer='FRAME'))
+        
+        #resistance bars on unused area of chip
+        #TODO make resistancebars support layer / kwargs
+        #ResistanceBarNegative(self,m.Structure(self,self.centered((0,-3000))),layer='XOR2')
+        #ResistanceBarNegative(self,m.Structure(self,self.centered((0,3000))),layer='XOR2')
+
+class ResonatorChip6_1(m.Chip7mm):
+    def __init__(self,wafer,chipID,layer,
+                 L_ws =       [320,305,290,280,265,250], #Lw the wiggle length of each resonator (sets the resonator frequency) (lo to high freq)
+                 seps =       [200, 220,240,220,260,280],#resonator distance to cpw (sets each resonator's coupling)
+                 indices =    [2,0,5,3,1,4], #these indices are chosen so no two adjacent resonators are close in frequency (to limit crosstalk)
+                 res_spacing=1200 # how far apart the resonators are
+                 ):
+        m.Chip7mm.__init__(self,wafer,chipID,layer,defaults={'w':10, 's':6, 'radius':300,'r_out':10,'r_ins':10,'curve_pts':30})
+        
+        for s in self.structures:
+            #move away from edge of chip
+            s.shiftPos(340)
+            
+        #XOR square to cover whole chip-- first layer
+        self.add(dxf.rectangle(self.center,6700,5000,halign=const.CENTER,valign=const.MIDDLE,layer='BASEMETAL3',bgcolor=self.wafer.bg('BASEMETAL3')))
+        self.add(dxf.rectangle(self.centered((0,5000/2)),5400-2*900,850,halign=const.CENTER,valign=const.TOP,layer='BASEMETAL3',bgcolor=self.wafer.bg('BASEMETAL3')))
+        self.add(dxf.rectangle(self.centered((0,-5000/2)),5400,850,halign=const.CENTER,valign=const.BOTTOM,layer='BASEMETAL3',bgcolor=self.wafer.bg('BASEMETAL3')))
+        
+        #XOR square to cover whole chip-- second layer
+        # self.add(dxf.rectangle(self.center,6800,6800,halign=const.CENTER,valign=const.MIDDLE,layer='SECONDLAYER',bgcolor=self.wafer.bg('SECONDLAYER')))
+        
+        #optical markers
+        doMirrored(MarkerCross, self, (2900,2900),linewidth=5, chipCentered=True,layer='MARKERS')
+        
+        half_trace = self.defaults['w']/2 + self.defaults['s']
+                
+        CPW_launcher(self,0,padw=250,pads=80,r_ins=30,r_out=30,l_taper=400,layer='XOR')
+        CPW_launcher(self,5,padw=250,pads=80,r_ins=30,r_out=30,l_taper=400,layer='XOR')        
+        
+        #calculate separation between the two structures
+        xdist = self.structures[5].start[0] - self.structures[0].start[0]
+        CPW_straight(self,0,xdist,layer='XOR')
+        
+        #make local copy of s0
+        s0  = self.structures[0]
+        
+        #write the resonators
+        for i in range(6):
+            # make a clone of s0 at varying distances along the main bus, some distance off to the side. 
+            # alternate offseting left and right of the bus, and set the new direction to point away from the main bus
+            s1 = s0.cloneAlongLast((xdist/2 + res_spacing*(-1.25+0.5*indices[i]),pow(-1,indices[i])*(half_trace + seps[i])),newDirection=(90+180*indices[i])%360)
+            # this forms the jellyfish resonator. the capacitor is defined by w_cap and s_cap, similar to a cpw
+            # the first two arguments are the width and height of the resonator. Weird things happen if the width is too small or height too short...
+            # we specify the width of the inductor, and instead of giving a overall wire length, we set the number of turns, and the max wiggle length
+            # wiggle length is half the distance from the the edge of one bend to the opposite side
+            # we also want the wiggles to bunch near the capacitor (ialign) although this doesn't matter since we chose the height of the resonator to be exact
+            JellyfishResonator(self,s1,500,412,None,r_ind=4,w_ind=3,w_cap=40,s_cap=20,maxWidth=L_ws[i]/2.,nTurns=19,ialign=const.TOP,layer='XOR')
+            #label the resonator for debugging
+            self.add(dxf.text(str(i),vadd(s1.start,(360,80)),height=48,layer='FRAME'))
+        
+        #resistance bars on unused area of chip
+        #TODO make resistancebars support layer / kwargs
+        #ResistanceBarNegative(self,m.Structure(self,self.centered((0,-3000))),layer='XOR2')
+        #ResistanceBarNegative(self,m.Structure(self,self.centered((0,3000))),layer='XOR2')
+        
+class ClearOut(m.Chip7mm):
     def __init__(self,wafer,chipID,layer,
                  L_ws =       [320,305,290,280,265,250], #Lw the wiggle length of each resonator (sets the resonator frequency) (lo to high freq)
                  seps =       [200, 220,240,220,260,280],#resonator distance to cpw (sets each resonator's coupling)
@@ -752,7 +864,7 @@ class ResonatorChip6(m.Chip7mm):
         self.add(dxf.rectangle(self.centered((0,-5000/2)),5400,850,halign=const.CENTER,valign=const.BOTTOM,layer='BASEMETAL',bgcolor=self.wafer.bg('BASEMETAL')))
         
         #XOR square to cover whole chip-- second layer
-        self.add(dxf.rectangle(self.center,6800,6800,halign=const.CENTER,valign=const.MIDDLE,layer='SECONDLAYER',bgcolor=self.wafer.bg('SECONDLAYER')))
+        self.add(dxf.rectangle(self.center,6800,6800,halign=const.CENTER,valign=const.MIDDLE,layer='XOR3',bgcolor=self.wafer.bg('XOR3')))
         
         #optical markers
         doMirrored(MarkerCross, self, (2900,2900),linewidth=5, chipCentered=True,layer='MARKERS')
@@ -787,10 +899,30 @@ class ResonatorChip6(m.Chip7mm):
         #TODO make resistancebars support layer / kwargs
         #ResistanceBarNegative(self,m.Structure(self,self.centered((0,-3000))),layer='XOR2')
         #ResistanceBarNegative(self,m.Structure(self,self.centered((0,3000))),layer='XOR2')
-        
+
 
 jarrayChip1 = EtchTestChip(w,'JARRAY','BASEMETAL')
 jarrayChip1.save(w,drawCopyDXF=False,dicingBorder=False)
+
+
+qsearchchip1 = QSearchChip6(w,'QSEARCH','BASEMETAL')
+qsearchchip1.save(w,drawCopyDXF=False,dicingBorder=False)
+
+# inverseqsearchchip1 = InverseQSearchChip6(w,'INVERSEQSEARCH','BASEMETAL2')
+# inverseqsearchchip1.save(w,drawCopyDXF=False,dicingBorder=False)
+
+resonatorchip1 = ResonatorChipchip(w,'RESONATOR','BASEMETAL3')
+resonatorchip1.save(w,drawCopyDXF=False,dicingBorder=False)
+
+resonatorchip2 = ResonatorChip6_1(w,'RESONATOR1','BASEMETAL3')
+resonatorchip2.save(w,drawCopyDXF=False,dicingBorder=False)
+
+clearout1 = ClearOut(w,'CLEAROUT','BASEMETAL')
+clearout1.save(w,drawCopyDXF=False,dicingBorder=False)
+
+
+
+chips = [jarrayChip1,qsearchchip1,resonatorchip2, resonatorchip1]
 
 
 #optical markers
@@ -804,11 +936,14 @@ doMirrored(MarkerCross, w, (17000,17000),linewidth=8, layer='MARKERS')
 
 for i in range(len(w.chips)):
     #populate with jarray
-    w.chips[i]=jarrayChip1
+    # if (i == 42) or (i == 54) or (i ==66):
+    #     w.chips[i]=clearout1
+    # else:
+    w.chips[i]=chips[i%4-1]
     #identifying marks
     w.add(dxf.text(str(i),vadd(w.chipPts[i],(5400,6100)),height=600,layer='MARKERS'))
-    w.add(dxf.text('45D',vadd(w.chipPts[i],(1200,6600)),height=240,layer='LABEL1'))
-    w.add(dxf.text('46D',vadd(w.chipPts[i],(1200,6600)),height=240,layer='LABEL2'))
+    w.add(dxf.text('NANK04',vadd(w.chipPts[i],(1200,6600)),height=240,layer='LABEL1'))
+    # w.add(dxf.text('46D',vadd(w.chipPts[i],(1200,6600)),height=240,layer='LABEL2'))
 
 # write all chips
 w.populate()

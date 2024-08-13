@@ -66,7 +66,7 @@ class TransmonPocket1():
         ab_distance = '70um',
         rotation = 0,
         jj_orientation = 180,
-        )
+        jc = '0.1')
     '''Default options for the transmon pocket.'''
     def __init__(self,
                  design,
@@ -168,8 +168,8 @@ class TransmonPocket1():
                             layer = p['junction_layer'],
                             area_layer = p['junction_area_layer'],
                             area_layer_opt = 'True',
-                            jj_orientation = p['jj_orientation']
-                            )
+                            jj_orientation = p['jj_orientation'],
+                            jc = p['jc'])
                             
             j = junction(design, 'jj'+p['coord'], options = jj_options)
             y_pos = (q.options.pad_height) + '/2' + '+' + (q.options.jj_length) +'-'+ (j.options.total_length)+'/4'#+'+'+q.options.pos_y
