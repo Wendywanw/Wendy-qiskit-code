@@ -50,6 +50,14 @@ renderer_q3d = design.renderers.q3d
 
 # define the default options for the components
 #qubit
+
+qubit_layer = 5
+junction_layer = 20
+ab_layer = 31
+ab_square_layer = 30
+junction_area_layer = 60
+
+
 qb_options = dict(
 pad_pocket_distance_top = '39.1um',
 jj_length = '40um',
@@ -74,7 +82,8 @@ TQ_options = dict(prime_width = design.variables['cpw_width'],
                coupling_space = '5um',
                open_termination=True,
                hfss_wire_bonds = False,
-               q3d_wire_bonds = False)
+               q3d_wire_bonds = False,
+               layer = qubit_layer)
 
 #cpw
 CPW_options = Dict(trace_width = design.variables['trace_width'],
@@ -82,6 +91,7 @@ CPW_options = Dict(trace_width = design.variables['trace_width'],
         total_length='5 mm',
         hfss_wire_bonds = False,
         q3d_wire_bonds = False,
+        layer = qubit_layer,
         fillet='30 um',
         lead = dict(start_straight='5um', end_straight = '5um'),
         pin_inputs=Dict(
@@ -98,6 +108,7 @@ trans_options = Dict(trace_width = design.variables['trace_width'],
                trace_gap  = design.variables['trace_gap'],
                lead = dict(start_straight='5um', end_straight = '5um'),
                fillet = '30um',
+               layer = qubit_layer,
                total_length = '0.5mm',
                hfss_wire_bonds = True,
                      q3d_wirebonds = True,
@@ -110,11 +121,7 @@ trans_options = Dict(trace_width = design.variables['trace_width'],
                      pin='prime_end')))
 
 #specify the layer numbers and the pocket options
-qubit_layer = 5
-junction_layer = 20
-ab_layer = 31
-ab_square_layer = 30
-junction_area_layer = 60
+
 
 pocket_options = dict(
         pos_x = '0mm', 
