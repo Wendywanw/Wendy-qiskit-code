@@ -1,0 +1,12 @@
+# %%
+import numpy as np
+import matplotlib.pyplot as plt
+
+# %% 
+angle_degrees = 90
+angle_radians = np.deg2rad(angle_degrees)
+sin_value = np.sin(angle_radians)
+print(sin_value)
+
+# %%
+
