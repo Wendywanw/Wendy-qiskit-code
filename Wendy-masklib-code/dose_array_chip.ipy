@@ -1,0 +1,309 @@
+# %%
+# %reload_ext autoreload
+# %autoreload 2
+#This imports the necessary path to draw the single pad transmon design. 
+import sys
+sys.path.append('../Customized_Components')
+from bandaged_dolan import DolanJunctionBandage
+from probe_pad import ProbePad
+
+
+import shapely
+import warnings
+from shapely.errors import ShapelyDeprecationWarning
+warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
+
+
+from qiskit_metal import designs, draw
+from qiskit_metal import MetalGUI, Dict, Headings
+
+from qiskit_metal.qlibrary.terminations.short_to_ground import ShortToGround
+from qiskit_metal.qlibrary.terminations.open_to_ground import OpenToGround
+
+from qiskit_metal.qlibrary.tlines.mixed_path import RouteMeander, RouteMixed
+from qiskit_metal.qlibrary.tlines.anchored_path import RouteAnchors
+from qiskit_metal.qlibrary.tlines.straight_path import RouteStraight
+
+from qiskit_metal.qlibrary.couplers.coupled_line_tee import CoupledLineTee
+from qiskit_metal.qlibrary.terminations.launchpad_wb import LaunchpadWirebond
+
+
+
+import pyEPR as epr
+
+import Default_res_params as dp
+
+from qiskit_metal.toolbox_metal.parsing import *
+from collections import OrderedDict
+import pandas as pd
+import numpy as np
+
+#%%
+gui = MetalGUI(dp.design)
+design = dp.design
+design.overwrite_enabled = True #This makes it possible to edit the designs later on. 
+
+
+
+
+#%%
+
+
+# # -*- coding: utf-8 -*-
+
+# # This code is part of Qiskit.
+# #
+# # (C) Copyright IBM 2017, 2021.
+# #
+# # This code is licensed under the Apache License, Version 2.0. You may
+# # obtain a copy of this license in the LICENSE.txt file in the root directory
+# # of this source tree or at http://www.apache.org/licenses/LICENSE-2.0.
+# #
+# # Any modifications or derivative works of this code must retain this
+# # copyright notice, and modified files need to carry a notice indicating
+# # that they have been altered from the originals.
+# """Dolan Junction."""
+
+# import numpy as np
+# import astropy.units as u
+# from qiskit_metal import draw, Dict
+# from qiskit_metal.qlibrary.core import QComponent
+
+# import sys
+# sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
+# from rounded_rectangle import rounded_rec_only as rec
+# from rounded_rectangle import rounded_rec as rec2
+# import Transmon_specifications as jj
+
+
+
+# class Dose_array(QComponent):
+#     """A dose array coponent 
+
+#     Inherits QComponent class.
+
+#     # .. meta::
+#     #     Circle Raster
+
+#     Default Options:
+#         * chip = 'main'
+#         * pos_x: '0um' -- x position of the center
+#         * pos_y: '0um' -- y position of the center
+#         * pad_width: '20 um' -- width of the big pads that connect to the transmon
+#         * pad_height: '30 um' -- height of the big pads that connect to the transmon
+#         * total_length: '80 um' -- total length of the junction, including the pads
+#         * Lj: '10 nH' -- inductance of the junction
+#         * resolution: '5' -- number of points used to draw the rounded rectangle
+#         * Fillet: '5 um' -- radius of the fillet/rounded corners
+#         * fat_finger_width: '6 um' -- width of the fat finger, i.e. the part that tapers down to the junction finger
+#         * Jc: '0.1' -- critical current density of the junction
+#         * rotation: '0' -- rotation of the junction
+#         * layer: '0' -- layer of the junction
+#         * area_layer: '1' -- layer of the area that defines the junction
+#         * area: 'False' -- whether to draw the area that defines the junction
+#     """
+#     default_options = Dict(
+#         pos_x = '0um', 
+#         pos_y = '0um',
+#         w_pocket = '350 um',
+#         h_pocket = '200 um',
+#         w_pad = '150 um',
+#         h_pad = '100 um',
+#         pad_gap = '7 um',
+#         orientation = '0',
+#         layer = '0',
+#         )
+#     """Default drawing options"""
+
+#     component_metadata = Dict(short_name='Pocket',
+#                               _qgeometry_table_path='True',
+#                               _qgeometry_table_poly='True',
+#                               _qgeometry_table_junction='True')
+#     """Component metadata"""
+
+#     TOOLTIP = """A dolan junction"""
+
+#     def make(self):
+#         """Define the way the options are turned into QGeometry.
+
+#         The make function implements the logic that creates the geoemtry
+#         (poly, path, etc.) from the qcomponent.options dictionary of
+#         parameters, and the adds them to the design, using
+#         qcomponent.add_qgeometry(...), adding in extra needed
+#         information, such as layer, subtract, etc.
+#         """
+#         """Making the dolan junction."""
+#         p = self.p
+
+#         # extract chip name
+#         chip = p.chip
+
+#         # since we will reuse these options, parse them once and define them as varaibles
+#         w_pocket = p.w_pocket
+#         h_pocket = p.h_pocket
+#         w_pad = p.w_pad
+#         h_pad = p.h_pad
+#         pad_gap = p.pad_gap
+
+#         pocket = rec2(w_pocket, h_pocket)
+#         pad = rec2(w_pad, h_pad)
+
+#         pad_left = draw.translate(pad, -w_pad/2-pad_gap/2, 0)
+#         pad_right = draw.translate(pad, w_pad/2 + pad_gap/2, 0)
+
+#         all = draw.union(pad_left, pad_right)
+#         cut = pocket
+
+#         components = draw.rotate([all,cut], p.orientation, origin=(0,0))
+#         all, cut = draw.translate(components, p.pos_x, p.pos_y)
+
+        
+        
+#         # Use the geometry to create Metal qgeometry
+#         self.add_qgeometry('poly',
+#                            dict(all=all),
+#                            chip=chip, layer = p.layer)
+
+#         self.add_qgeometry('poly', dict(cut = cut), 
+#                            subtract=True, layer=p.layer,
+#                            chip=chip)
+
+
+
+
+# %%
+dose_array_options = Dict(
+    pos_x = '0um', 
+    pos_y = '0um',
+    w_pocket = '350 um',
+    h_pocket = '200 um',
+    w_pad = '150 um',
+    h_pad = '100 um',
+    pad_gap = '7 um',
+    orientation = '0',
+    layer = '0',
+    )
+
+JJ_options = Dict(
+    pos_x = '0um',
+    pos_y = '0um',
+    w_pad_pin = '2 um',
+    w_pad_u = '2.8 um',
+    d_pin = '250 nm',
+    d_u = '300 nm',
+    total_length = '10 um',
+    w_top_pin = '250 nm',
+    w_top_u = '300 nm',
+    w_bot_pin = '200 nm',
+    w_bot_u = '300 nm',
+    top_bot_offset = '0 nm' ,
+    jj_extra = '600nm',
+    jj_gap = '0.2um',
+    fillet = '30 nm',
+    # jj_gap_actual = '0.2um',
+    # Lj = '10',
+    resolution = '5',
+    # Jc = '0.1',
+    orientation = '90',
+    pin_layer = '20',
+    gap_layer = '60',
+    area_layer_opt = 'False',
+    jj_orientation = '180')
+
+JJ_options1 = JJ_options.copy()
+JJ_options1['d_pin'] = '3um'
+JJ_options1['d_u'] = '4um'
+JJ_options1['w_pad_pin'] = '5um'
+JJ_options1['w_pad_u'] = '6um'
+JJ_options1['total_length'] = '20um'
+JJ_options1['jj_extra'] = '0um'
+
+
+def junction_probe_pad(x,y,jj_w,jj_gap, name, dose_array_options = dose_array_options, JJ_options = JJ_options):
+
+    dose_array_options['pos_x'] = x
+    dose_array_options['pos_y'] = y
+
+    JJ_options['pos_x'] = x
+    JJ_options['pos_y'] = y
+    JJ_options['w_bot_pin'] = jj_w
+    JJ_options['jj_gap'] = jj_gap
+
+    dose_array = ProbePad(design, name+'ProbePad', dose_array_options)
+    dolan = DolanJunctionBandage(design,name+'JJ',JJ_options)
+
+
+# %%
+chip_size = 5500 #um
+
+x_gap = 500
+y_gap = 300
+
+x_array = np.arange(-chip_size/2, chip_size/2, x_gap)
+y_array = np.arange(-chip_size/2, chip_size/2, y_gap)
+
+
+
+i = len(x_array)
+j = len(y_array)
+
+print(i,j)
+
+jj_gap = np.linspace(100,500,i)
+jj_w = np.linspace(0,400,j)
+
+for ii in range(i):
+    for jj in range(j):
+        x = x_array[ii]
+        y = y_array[jj]
+        junction_probe_pad(str(x)+'um',
+                           str(y)+'um',
+                           '{}nm'.format(jj_gap[ii]),
+                           '{}nm'.format(jj_w[jj]),
+                           'JJ'+str(ii)+"_"+str(jj),
+                           JJ_options=JJ_options1)
+
+gui.rebuild()
+
+
+# %%
+
+
+a_gds = design.renderers.gds
+
+a_gds.options.cheese.edge_nocheese = '200um'
+a_gds.options.no_cheese.buffer = '16um'
+a_gds.options.cheese.cheese_1_radius = '70um'
+
+qubit_layer = 5
+junction_layer = 20
+ab_layer = 31
+ab_square_layer = 30
+junction_area_layer = 60
+a_gds.options['max_points'] = 500
+a_gds.options['fabricate'] = True
+
+a_gds.options['negative_mask'] = Dict(main = [0])
+
+a_gds.options['cheese']['view_in_file']['main'][qubit_layer] = False
+a_gds.options['no_cheese']['view_in_file']['main'][qubit_layer] = False
+a_gds.options['cheese']['view_in_file']['main'][junction_layer] = False
+a_gds.options['no_cheese']['view_in_file']['main'][junction_layer] = False
+a_gds.options['cheese']['view_in_file']['main'][ab_layer] = False
+a_gds.options['no_cheese']['view_in_file']['main'][ab_layer] = False
+a_gds.options['cheese']['view_in_file']['main'][ab_square_layer] = False
+a_gds.options['no_cheese']['view_in_file']['main'][ab_square_layer] = False
+a_gds.options['cheese']['view_in_file']['main'][1] = False
+a_gds.options['no_cheese']['view_in_file']['main'][1] = False
+
+# a_gds.options['fabricate'] = False
+a_gds.options.tolerance = '0.0000005'
+a_gds.options.precision = '0.0000000005'
+
+a_gds.export_to_gds('dose_chip.gds')
+
+
+# %%
+# a_gds.options
+# %%
+
