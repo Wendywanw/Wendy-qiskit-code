@@ -14,17 +14,17 @@
 # that they have been altered from the originals.
 """Dolan Junction."""
 
-import numpy as np
+import sys
+
 import astropy.units as u
-from qiskit_metal import draw, Dict
+import numpy as np
+from qiskit_metal import Dict, draw
 from qiskit_metal.qlibrary.core import QComponent
 
-import sys
 sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
-from rounded_rectangle import rounded_rec_only as rec
-from rounded_rectangle import rounded_rec as rec2
 import Transmon_specifications as jj
-
+from rounded_rectangle import rounded_rec as rec2
+from rounded_rectangle import rounded_rec_only as rec
 
 
 class DolanJunctionBandage(QComponent):
@@ -143,17 +143,17 @@ class DolanJunctionBandage(QComponent):
         top_finger_pin = draw.translate(top_pin, 0, top_finger_len/2+jj_gap/2 )
         bot_finger_pin = draw.translate(bot_pin, 0, -bot_finger_len/2-jj_gap/2)
 
-        all = draw.shapely.ops.unary_union([top_pad_pin, bot_pad_pin, top_finger_pin, bot_finger_pin])
+        metal_all = draw.shapely.ops.unary_union([top_pad_pin, bot_pad_pin, top_finger_pin, bot_finger_pin])
 
         under_cut  = draw.shapely.ops.unary_union([top_pad_u, bot_pad_u,finger_u])
 
-        cut = under_cut.difference(all)
+        cut = under_cut.difference(metal_all)
         
-        components = draw.rotate([all, cut], p.orientation, origin = (0,0))
+        components = draw.rotate([metal_all, cut], p.orientation, origin = (0,0))
         all,cut = draw.translate(components, p.pos_x, p.pos_y)
         
-        if p.dimension_text:
-            pass
+        # if p.dimension_text:
+        #     pass
         # Use the geometry to create Metal qgeometry
         self.add_qgeometry('poly',
                            dict(all=all),

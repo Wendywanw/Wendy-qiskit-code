@@ -3,39 +3,34 @@
 # %autoreload 2
 #This imports the necessary path to draw the single pad transmon design. 
 import sys
-sys.path.append('../Customized_Components')
-from single_pad_transmon_pocket import TransmonPocket_Single
-from LaunchpadWirebondCustom import LaunchpadWirebondCustom
-from CoupledLineTee import CoupledLineTee
-from dolan_junction import DolanJunction
 
+sys.path.append('../Customized_Components')
+import warnings
 
 import shapely
-import warnings
+from CoupledLineTee import CoupledLineTee
+from dolan_junction import DolanJunction
+from LaunchpadWirebondCustom import LaunchpadWirebondCustom
 from shapely.errors import ShapelyDeprecationWarning
+from single_pad_transmon_pocket import TransmonPocket_Single
+
 warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
-from qiskit_metal import designs, draw
-from qiskit_metal import MetalGUI, Dict, Headings
+from collections import OrderedDict
 
-from qiskit_metal.qlibrary.terminations.short_to_ground import ShortToGround
-from qiskit_metal.qlibrary.terminations.open_to_ground import OpenToGround
-
-from qiskit_metal.qlibrary.tlines.mixed_path import RouteMeander, RouteMixed
-from qiskit_metal.qlibrary.tlines.anchored_path import RouteAnchors
-from qiskit_metal.qlibrary.tlines.straight_path import RouteStraight
+import Default_res_params as dp
+import numpy as np
+import pandas as pd
 
 # from qiskit_metal.qlibrary.couplers.coupled_line_tee import CoupledLineTee
 # from qiskit_metal.qlibrary.terminations.launchpad_wb import LaunchpadWirebond
-
-
 import pyEPR as epr
-
-import Default_res_params as dp
-
+from qiskit_metal import Dict, Headings, MetalGUI, designs, draw
+from qiskit_metal.qlibrary.terminations.open_to_ground import OpenToGround
+from qiskit_metal.qlibrary.terminations.short_to_ground import ShortToGround
+from qiskit_metal.qlibrary.tlines.anchored_path import RouteAnchors
+from qiskit_metal.qlibrary.tlines.mixed_path import RouteMeander, RouteMixed
+from qiskit_metal.qlibrary.tlines.straight_path import RouteStraight
 from qiskit_metal.toolbox_metal.parsing import *
-from collections import OrderedDict
-import pandas as pd
-import numpy as np
 
 #%%
 gui = MetalGUI(dp.design)
@@ -59,16 +54,15 @@ design.overwrite_enabled = True #This makes it possible to edit the designs late
 # copyright notice, and modified files need to carry a notice indicating
 # that they have been altered from the originals.
 
+import sys
+
 import numpy as np
-from qiskit_metal import draw, Dict
+from qiskit_metal import Dict, draw
 from qiskit_metal.qlibrary.core import BaseQubit
 
-
-import sys
 sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
-from rounded_rectangle import rounded_rec_only as rec
 from rounded_rectangle import rounded_rec as rec2
-
+from rounded_rectangle import rounded_rec_only as rec
 
 
 class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
@@ -412,6 +406,7 @@ coords = [(0.5225 -0,.185),
 import matplotlib.pyplot as plt
 from shapely.geometry import Polygon
 from shapely.geometry.polygon import LinearRing
+
 polygon = Polygon(coords)
 
 # Extract the exterior coordinates of the polygon
