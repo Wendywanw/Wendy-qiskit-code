@@ -150,8 +150,11 @@ def rounded_rec_only(width, height, radius, resolution = 5, connection = False,c
             y_corner = height/2*yi-radius*yi
             pts = np.array(pts)
             coords = pts +np.array([x_corner,y_corner])
-            index = None
-            index = coords if i == 0 else np.concatenate((index,coords))
+            
+            if i == 0:
+                index = coords
+            else:
+                index = np.concatenate((index,coords))
         index = np.concatenate((index,np.array([[width/2,-height/2],[-width/2,-height/2]])))
 
     else:
@@ -166,7 +169,10 @@ def rounded_rec_only(width, height, radius, resolution = 5, connection = False,c
             pts = np.array(pts)
             coords = pts +np.array([x_corner,y_corner])
             # coords = list(coords)
-            index = coords if i == 0 else np.concatenate((index,coords))
+            if i == 0:
+                index = coords
+            else:
+                index = np.concatenate((index,coords))
                     # print(index)
 
     rounded_rec = draw.Polygon(index)
