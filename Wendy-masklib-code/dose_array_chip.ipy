@@ -6,6 +6,7 @@ import sys
 sys.path.append('../Customized_Components')
 from bandaged_dolan import DolanJunctionBandage
 from probe_pad import ProbePad
+from text import Text_object
 
 
 import shapely
@@ -175,19 +176,36 @@ design.overwrite_enabled = True #This makes it possible to edit the designs late
 maximum_jj_w = 500 #nm
 small_jj_length = 20#nm
 
+h_pocket = 600 #um
+w_pocket = 900
+
+
+
 
 
 dose_array_options = Dict(
     pos_x = '0um', 
     pos_y = '0um',
-    w_pocket = '900 um',
-    h_pocket = '600 um',
+    w_pocket = f'{w_pocket:.0f} um',
+    h_pocket = f'{h_pocket:.0f} um',
     w_pad = '400 um',
     h_pad = '300 um',
     pad_gap = '7 um',
     orientation = '0',
     layer = '0',
     )
+
+text_options = Dict(
+        pos_x = '0um', 
+        pos_y = '0um',
+        text = 'haha',
+        text_height = '20 mm',
+        orientation = '0',
+        layer = '0',
+        subtract = 'True'
+        )
+
+
 
 JJ_options = Dict(
     pos_x = '0um',
@@ -199,9 +217,9 @@ JJ_options = Dict(
     d_pin = '250 nm',
     d_u = '500 nm',
     total_length = '1 um',
-    w_top_pin = '250 nm',
+    w_top_pin = '500 nm',
     w_top_u = '500 nm',
-    w_bot_pin = '200 nm',
+    w_bot_pin = '500 nm',
     w_bot_u = '500 nm',
     top_bot_offset = '0 nm' ,
     jj_extra = '600nm',
@@ -242,13 +260,16 @@ def junction_probe_pad(x,y,jj_w,jj_gap, name, dose_array_options = dose_array_op
 
 
 # %%
-chip_size = 6500 #um
+design.delete_all_components()
+chip_size = 6900 #um
 
 x_gap = 1000
 y_gap = 1000
 
 x_array = np.arange(-chip_size/2, chip_size/2, x_gap)
+x_array -= (max(x_array)+min(x_array))/2
 y_array = np.arange(-chip_size/2, chip_size/2, y_gap)
+y_array -= (max(y_array)+min(y_array))/2
 
 
 
@@ -257,8 +278,8 @@ j = len(y_array)
 
 
 
-jj_gap = np.linspace(100,500,i)
-jj_w = np.linspace(0,400,j)
+jj_gap = np.linspace(100,300,i)
+jj_w = np.linspace(200,500,j)
 
 for ii in range(i):
     for jj in range(j):
@@ -266,11 +287,37 @@ for ii in range(i):
         y = y_array[jj]
         junction_probe_pad(str(x)+'um',
                            str(y)+'um',
-                           '{}nm'.format(jj_gap[ii]),
-                           '{}nm'.format(jj_w[jj]),
+                           '{}nm'.format(jj_w[ii]),
+                           '{}nm'.format(jj_gap[jj]),
                            'JJ'+str(ii)+"_"+str(jj),
                            JJ_options=JJ_options1)
+        text_options['pos_x'] = str(x-w_pocket/2)+'um'
+        text_options['pos_y'] = str(y+h_pocket/2-100)+'um'
+        text_options['text'] = 'G'+ '{:.0f}'.format(jj_gap[jj]) + 'W'+ '{:.0f}'.format(jj_w[ii])
+        text_options['text_height'] = '50um'
+        text_options['orientation'] = '0'
+        text_options['subtract'] = 'False'
+        Text_object(design, 'G'+ '{:.0f}'.format(jj_gap[jj]) + 'W'+ '{:.0f}'.format(jj_w[ii]),text_options)
 
+
+# text_options['subtract'] = 'True'
+# for ii in range(1,i):
+#     x = x_array[ii]-x_gap/2
+#     y = y_array[0]
+#     text_options['pos_x'] = str(x)+'um'
+#     text_options['pos_y'] = str(y)+'um'
+#     text_options['text'] = 'gap'+ '{:.0f}nm'.format(jj_gap[ii-1])
+#     text_options['text_height'] = '100um'
+#     Text_object(design, 'W'+ '{:.0f}nm'.format(jj_gap[ii-1]),text_options)
+    
+# for jj in range(1,j):
+#     x = x_array[0]-x_gap/2
+#     y = y_array[jj]
+#     text_options['pos_x'] = str(x)+'um'
+#     text_options['pos_y'] = str(y)+'um'
+#     text_options['text'] = 'w'+ '{:.0f}nm'.format(jj_w[jj-1])
+#     text_options['text_height'] = '100um'
+#     Text_object(design, 'G'+ '{:.0f}nm'.format(jj_w[jj-1]),text_options)
 gui.rebuild()
 
 # %% 
@@ -278,7 +325,7 @@ gui.rebuild()
 
 
 # %%
-# design.delete_all_components()
+# 
 
 # jj = DolanJunctionBandage(design,'JJ',JJ_options1)
 # gui.rebuild()
@@ -321,18 +368,7 @@ a_gds.export_to_gds('dose_chip.gds')
 
 # %%
 # a_gds.options
-# %%
-import gdspy as gp
-
-text = "Hello, GDS!"
-size = 10  # Size of the text
-position = (0, 0)  # Position of the text
-layer = 1  # GDSII layer number
-
-test_element = gp.Text('haha',size, position, layer=layer)
-polygons = test_element.polygons
-
 
 # %%
-print(polygons)
+
 # %%
