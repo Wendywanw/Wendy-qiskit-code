@@ -18,6 +18,7 @@ warnings.filterwarnings("ignore", category=ShapelyDeprecationWarning)
 from collections import OrderedDict
 
 import Default_res_params as dp
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
@@ -60,13 +61,13 @@ import numpy as np
 from qiskit_metal import Dict, draw
 from qiskit_metal.qlibrary.core import BaseQubit
 
-sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
+sys.path.append('../Customized_Components')
 from rounded_rectangle import rounded_rec as rec2
 from rounded_rectangle import rounded_rec_only as rec
 
 
-class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
-    """The base `TransmonCross` class.
+class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
+    """The base `DiffTransmonRounded` class.
 
     Inherits `BaseQubit` class.
 
@@ -140,22 +141,22 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         chip='main',
         resolution = '10',
         junction = 'False',
-        orientation = '180',
-        )
+        orientation = '0',
+        istunnel = 'True')
     """Default options."""
 
-    component_metadata = Dict(short_name='Cross',
+    component_metadata = Dict(short_name='DiffRound',
                               _qgeometry_table_poly='True',
                               _qgeometry_table_junction='True')
     """Component metadata"""
 
-    TOOLTIP = """Simple Metal Transmon Cross."""
+    TOOLTIP = """Simple Rounded Differnetial Transmon"""
 
     ##############################################MAKE######################################################
 
 
     def make(self):
-        """Makes a basic Crossmon, 4 arm cross."""
+        """Makes a basic Differential Rounded Transmon"""
 
         # self.p allows us to directly access parsed values (string -> numbers) form the user option
         p = self.p
@@ -177,17 +178,18 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         coupling_d = p.coupling_d
         coupling_pad_w = p.coupling_pad_w
         resolution = p.resolution
-        coupling_r = p.coupling_r
+        coupling_r = min(coupling_pad_w/2,p.coupling_r)
+        coupling_r_stub = min(w/2,p.coupling_r)
         JJ_c_contact_shortl = p.JJ_c_contact_shortl
+        istunnel = p.istunnel
         
-        right_pad_location = cpw_l+coupling_d+coupling_gap+coupling_pad_w/2*3+gap
-        left_pad_location = cpw_l+coupling_d+coupling_gap+coupling_pad_w/2
-        print(right_pad_location)
+        right_pad_location = cpw_l+coupling_d+coupling_gap+w/2*3+gap
+        left_pad_location = cpw_l+coupling_d+coupling_gap+w/2
         
         coupling_stub_x = cpw_l+(coupling_d+coupling_gap)/2
         coupling_stub_y = w+coupling_gap
         
-        coupling_r = min((l - 2*r)/2 - coupling_stub_y - w/2, coupling_r)
+        coupling_r_stub = min((l - 2*r)/2 - coupling_stub_y - w/2, coupling_r_stub)
 
         # access to chip name
         chip = p.chip
@@ -206,13 +208,8 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         
         pad = rec(w,l,  r, resolution = resolution)
         
-        
-        
-        
-        pad_right = draw.translate(pad, right_pad_location, 0)
-        pad_left = draw.translate(pad, left_pad_location, 0)
-        
-        junction_location = cpw_l+coupling_d+coupling_gap+coupling_pad_w+gap/2
+
+        junction_location = cpw_l+coupling_d+coupling_gap+w+gap/2
         
         JJ_cutouthalf_w = JJ_cutout_w/2-gap/2
         JJ_cutout_r = min(JJ_cutout_r, JJ_cutouthalf_w/2)
@@ -255,21 +252,63 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         
         # 
         JJ_cutouts1 = draw.union([JJ_contact_left, JJ_contact_right])
-        
+        # if p.junction
         JJ_cutouts = draw.union([JJ_cutouts, JJ_cutouts1])
         
-    
         
-        coupling_stub = rec(w,coupling_d+coupling_gap-w, coupling_r, resolution = resolution,connection = True,connection_direction = 270)
-        coupling_stub = draw.translate(coupling_stub,w/2 , 0)
-        sub_rounded = rec(w*2,w,r, resolution = resolution)
-        sub_rounded = draw.translate(sub_rounded, -coupling_d/2+w, 0)
-        
-        coupling_stub = draw.union([coupling_stub, sub_rounded])
+        pad_right = draw.translate(pad, right_pad_location, 0)
+        pad_left = draw.translate(pad, left_pad_location, 0)
         
         
-        coupling_stub_top = draw.translate(coupling_stub, coupling_stub_x, coupling_stub_y)
-        coupling_stub_bot = draw.translate(coupling_stub, coupling_stub_x, -coupling_stub_y)
+        
+        angle = p.orientation
+        cos = np.cos(np.radians(angle))
+        sin = np.sin(np.radians(angle))
+        
+        coupling_stub_x = cpw_l+(coupling_d+coupling_gap)/2
+        coupling_stub_y = w/2+coupling_pad_w/2+coupling_gap
+        
+        # coupling_stub = rec(w,coupling_d+coupling_gap-w, coupling_r, resolution = resolution,connection = True,connection_direction = 270)
+        # coupling_stub = draw.translate(coupling_stub,w/2 , 0)
+        # sub_rounded = rec(w*2,w,r, resolution = resolution)
+        # sub_rounded = draw.translate(sub_rounded, -coupling_d/2+w, 0)
+        
+        # coupling_stub = draw.union([coupling_stub, sub_rounded])
+        
+        coupling_stub_top = rec2(coupling_d+coupling_gap, 
+                             w,
+                         same_radius = False,  
+                         r1 = coupling_r_stub,
+                         r2 = coupling_r_stub,
+                         r3 = coupling_r_stub,
+                         r4 = coupling_r,
+                         resolution = resolution,
+                         d1 = [-1,1],
+                         d2 = [1,-1],
+                         d3 = [1,1],
+                         d4 = [-1,-1]
+                         )
+        
+        coupling_stub_bot = rec2(coupling_d+coupling_gap, 
+                             w,
+                         same_radius = False,  
+                         r1 = coupling_r,
+                         r2 = coupling_r_stub,
+                         r3 = coupling_r_stub,
+                         r4 = coupling_r_stub,
+                         resolution = resolution,
+                         d1 = [-1,1],
+                         d2 = [1,-1],
+                         d3 = [1,1],
+                         d4 = [-1,-1]
+                         )
+        
+        coupling_stub_top = draw.rotate(coupling_stub_top, 180, origin = (0,0))
+        coupling_stub_bot = draw.rotate(coupling_stub_bot, 180, origin = (0,0))
+
+        
+        coupling_stub_top = draw.translate(coupling_stub_top, coupling_stub_x+1e-9, coupling_stub_y)
+        coupling_stub_bot = draw.translate(coupling_stub_bot, coupling_stub_x+1e-9, -coupling_stub_y)
         
         coupling_pad_r = min(r, coupling_pad_w/2)
         coupling_pad = rec(coupling_d,coupling_pad_w,  coupling_pad_r, resolution = resolution)
@@ -279,6 +318,22 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
         cpw_stub = rec(cpw_l*2,p.cpw_pin,0, resolution = 1)
         cpw_stub = draw.translate(cpw_stub, cpw_l, 0)
         
+        # x, y = coupling_stub_top.exterior.xy
+
+        # # Plot the shape using Matplotlib
+        # fig, ax = plt.subplots()
+        # ax.plot(x, y, color='blue')
+
+        # # Set the aspect ratio to be equal
+        # ax.set_aspect('equal')
+
+        # # Add grid and labels
+        # ax.grid(True)
+        # ax.set_xlabel('X')
+        # ax.set_ylabel('Y')
+
+        # # Show the plot
+        # plt.show()
 
         # if p.junction == 'True':
         #     cut_out = draw.rectangle(p.inductor_width/4, p.jj_pocket_extent/4)
@@ -295,15 +350,32 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
 
         # #rotate and translate
         poly_metal = draw.union([pad_right, pad_left, coupling_stub_top, coupling_stub_bot, coupling_pad, cpw_stub])
-        polys = poly_metal.difference(JJ_cutouts)
+        if istunnel == 'True':
+            polys = poly_metal.difference(JJ_cutouts)
+        else:
+            polys = poly_metal
         polys = draw.rotate(polys, p.orientation, origin=(0, 0))
         polys = draw.translate(polys, p.pos_x, p.pos_y)
-
+        
+        
+        
+        cpw_pin_start = [p.pos_x + cos*cpw_l,p.pos_y+sin*cpw_l]
+        cpw_pin_end = [p.pos_x,p.pos_y]
+        
+        self.add_pin('cpw_stub', 
+                     [cpw_pin_start,cpw_pin_end], 
+                     width = p.cpw_pin,
+                     input_as_norm=True,)
         # [center_metal, center_metal_top, center_metal_bot, center_metal_etch, center_metal_top_etch, center_metal_bot_etch, rect_jj] = polys
 
         # generate qgeometry
-        self.add_qgeometry('poly', dict(cross=polys), chip=chip)
-        self.add_qgeometry('poly', dict(center_metal_etch=cutout_pad), chip=chip, subtract=True)
+        self.add_qgeometry('poly', 
+                           dict(cross=polys), 
+                           chip=chip)
+        self.add_qgeometry('poly', 
+                           dict(center_metal_etch=cutout_pad), 
+                           chip=chip, 
+                           subtract=True)
         
         # self.add_qgeometry('poly',
         #                    dict(cross_etch=cross_etch),
@@ -327,9 +399,9 @@ class TransmonCross(BaseQubit):  # pylint: disable=invalid-name
 default_options = Dict(
         cut_l='1000um',
         cut_h='1200um',
-        gap='15um',
-        w = '120um',
-        l = '600um',
+        gap='55um',
+        w = '90um',
+        l = '900um',
         r = '60um',
         cpw_l = '50um',
         coupling_gap = '30um',
@@ -339,111 +411,201 @@ default_options = Dict(
         JJ_c_contact_l = '40um',
         JJ_c_contact_r = '2.5um',
         JJ_c_contact_w = '10um',
-        coupling_d = '350um',
-        coupling_pad_w = '120um',
-        coupling_r = '150um',
+        coupling_d = '200um',
+        coupling_pad_w = '90um',
+        coupling_r = '40um',
         cpw_pin = '10um',
         chip='main',
         resolution = '10',
         junction = 'False',
         orientation = '0',
         JJ_c_contact_shortl = '10um',
-        )
+        istunnel = 'True')
 
 
-qubit = TransmonCross(design, 'Q1', options = default_options)
+qubit = DiffTransmonRounded(design, 'Q1', options = default_options)
 gui.rebuild()
 # %%
-qubit.options
-# %%
-coords = [(0.5225 -0,.185), 
-           (0.5243467489107293, -0.1615348302439654), 
-           (0.5298415225557269, -0.1386474508437579), 
-           (0.5388490213717448, -0.116901425039068), 
-           (0.5511474508437579, -0.096832212156129), 
-           (0.5664339828220178, -0.0789339828220179), 
-           (0.584332212156129, -0.0636474508437579), 
-           (0.6044014250390679, -0.0513490213717448), 
-           (0.6261474508437579, -0.042341522555727), 
-           (0.6490348302439654, -0.0368467489107293), 
-           (0.6725, -0.035), 
-           (0.4, -0.035), 
-           (0.4234651697560346, -0.0331532510892707), 
-           (0.4463525491562421, -0.027658477444273), 
-           (0.468098574960932, -0.0186509786282552), 
-           (0.488167787843871, -0.0063525491562421), 
-           (0.5060660171779822, 0.0089339828220179), 
-           (0.5213525491562421, 0.026832212156129), 
-           (0.5336509786282552, 0.046901425039068), 
-           (0.5426584774442731, 0.0686474508437579), 
-           (0.5481532510892707, 0.0915348302439654), 
-           (0.55, 0.115), 
-           (0.55, -0.115), 
-           (0.5481532510892707, -0.0915348302439654), 
-           (0.5426584774442731, -0.0686474508437579), 
-           (0.5336509786282552, -0.046901425039068), 
-           (0.5213525491562421, -0.026832212156129), 
-           (0.5060660171779822, -0.0089339828220179), 
-           (0.488167787843871, 0.0063525491562421), 
-           (0.468098574960932, 0.0186509786282552), 
-           (0.4463525491562421, 0.027658477444273), 
-           (0.4234651697560346, 0.0331532510892707), 
-           (0.4, 0.035), 
-           (0.6725, 0.035), 
-           (0.6490348302439654, 0.0368467489107293), 
-           (0.6261474508437579, 0.042341522555727), 
-           (0.6044014250390679, 0.0513490213717448), 
-           (0.584332212156129, 0.0636474508437579), 
-           (0.5664339828220178, 0.0789339828220179), 
-           (0.5511474508437579, 0.096832212156129), 
-           (0.5388490213717448, 0.116901425039068), 
-           (0.5298415225557269, 0.1386474508437579), 
-           (0.5243467489107293, 0.1615348302439654), 
-           (0.5225, 0.185), 
-           (0.5225, -0.185)]
+from qiskit_metal.analyses.quantization import LOManalysis
+
+c1 = LOManalysis(design, "q3d")
+#c1.setup_junctions(Dict({'Lj': 12, 'Cj': 2}))
+c1.sim.run(components=['Q1'], open_terminations=[('Q1', 'cpw_stub')])
+df = c1.sim.capacitance_matrix
+display(df)
 #%%
+import copy
+cap_matrix = df.to_numpy()
+normal = copy.deepcopy(cap_matrix)
+cj = 10
+T = np.array([[1,0,-1,0],
+              [0,1,0,0],
+              [1,0,1,0],
+              [0,0,0,1]])
+cap_matrix[0,2] -= cj
+cap_matrix[2,0] -= cj
+cap_matrix[2,2] += cj
+cap_matrix[0,0] += cj
+caps = np.linalg.inv(T).T@(cap_matrix)@np.linalg.inv(T)
+normals = np.linalg.inv(T).T@(normal)@np.linalg.inv(T)
+print(np.reciprocal(np.linalg.inv(caps)))
+print(np.reciprocal(np.linalg.inv(normals)))
+# %%
+cap_matrix = df.to_numpy()
+T = np.array([[1,0,-1,0],
+              [0,1,0,0],
+              [1,0,1,0],
+              [0,0,0,1]])
+caps = np.linalg.inv(T).T@(cap_matrix)@np.linalg.inv(T)
+print(caps)
+print(np.reciprocal(np.linalg.inv(caps)))
 
+# %%
+from pandas import DataFrame
+capacitances = []
+T = np.array([[1,0,-1,0],
+              [0,1,0,0],
+              [1,0,1,0],
+              [0,0,0,1]])
+for l in np.arange(500, 910, 10):
+    default_options['l'] = f'{l}um'
+    qubit = DiffTransmonRounded(design, f'Q1_{l}', options = default_options)
+    gui.rebuild()
+    c1.sim.run(components=[f'Q1_{l}'], open_terminations=[(f'Q1_{l}', 'cpw_stub')])
+    Cs = c1.sim.capacitance_matrix
+    cap_matrix = Cs.to_numpy()
+    caps = np.linalg.inv(T).T@(cap_matrix)@np.linalg.inv(T)
+    capacitances.append([l, np.reciprocal(np.linalg.inv(caps))[0,0], np.reciprocal(np.linalg.inv(caps))[0,1]])
+df=DataFrame(capacitances, columns=['l (um)', 'Capacitance (fF)', 'Reduced Coupling Capacitance (fF)'])
+df.to_csv('capacitances_vs_pad_length.csv')
+#%%
+display(df)
 import matplotlib.pyplot as plt
-from shapely.geometry import Polygon
-from shapely.geometry.polygon import LinearRing
+plt.figure()
+plt.scatter(df['l (um)'], df['Capacitance (fF)'])
+plt.xlabel('Pad Length ' + r' ($\mu m$)')
+plt.ylabel('Capacitance (fF)')
+plt.title('Capacitance vs Pad Length')
+plt.savefig('capacitances_vs_pad_length_1.png')
+#%%
+from scipy.stats import linregress
+slope, intercept, r_value, p_value, std_err = linregress(df['l (um)'], df['Capacitance (fF)'])
+plt.figure()
+plt.scatter(df['l (um)'], df['Capacitance (fF)'])
+plt.plot(df['l (um)'], slope*df['l (um)']+intercept, color='red', linewidth=2.5)
+plt.xlabel('Pad Length ' + r' ($\mu m$)')
+plt.ylabel('Capacitance (fF)')
+plt.legend(['Simulated Capacitances', 'Linear Fit'])
+#plt.text(100,100, f'y = {slope:.2f}x + {intercept:.2f}\nR^2 = {r_value**2:.2f}')
+plt.title('Capacitance vs Pad Length')
+plt.savefig('capacitances_vs_pad_length_w_fit.png')
+print(f'slope: {slope}, intercept: {intercept}, r_value: {r_value}, p_value: {p_value}, std_err: {std_err}')
+#%%
+plt.figure()
+plt.scatter(df['l (um)'], df['Reduced Coupling Capacitance (fF)'])
+plt.xlabel('Pad Length ' + r' ($\mu m$)')
+plt.ylabel('Reduced Coupling Capacitance (fF)')
+plt.title('Reduced Coupling Capacitance vs Pad Length')
+plt.savefig('reduced_coupling_capacitances_vs_pad_length.png')
+#$$
+import scqubits as scq
 
-polygon = Polygon(coords)
+def get_charging_energy(c):
+    c = c*1e-15
+    e = 1.60217662e-19
+    h = 6.62607015e-34
+    return (e**2/(2*c*h))*10**-9
+E_J = 8
+C_J = 10
+charging_energies_computed = list(map(get_charging_energy, df['Capacitance (fF)']+C_J))
+charging_energies_fit = list(map(get_charging_energy, slope*df['l (um)']+intercept+C_J))
+plt.figure()
+plt.scatter(df['l (um)'], charging_energies_computed)
+plt.plot(df['l (um)'], charging_energies_fit, color='red', linewidth=2.5)
+plt.legend(['Simulated', 'Fit'])
+plt.xlabel('Pad Length ' + r' ($\mu m$)')
+plt.ylabel('Charging Energy (GHz)')
+plt.title('Charging Energy vs Pad Length')
+plt.savefig('charging_energy_vs_pad_length.png')
+def get_transmon_properties(E_J, E_Cs):
+    transmon = scq.Transmon(
+        EJ=E_J,
+        EC=1,
+        ng=0.0,
+        ncut=30
+    )
+    spec_data = transmon.get_spectrum_vs_paramvals(param_name='EC', param_vals=E_Cs)
+    As = (spec_data.energy_table[:,2]-spec_data.energy_table[:,1]) - (spec_data.energy_table[:,1]-spec_data.energy_table[:,0])
+    f_egs = spec_data.energy_table[:,1]-spec_data.energy_table[:,0]
+    return np.vstack((As, f_egs))
+E_Cs_computed = np.array(charging_energies_computed)
+E_Cs_fit = np.array(charging_energies_fit)
+transmon_properties = get_transmon_properties(E_J, E_Cs_computed)
+transmon_properties_fit = get_transmon_properties(E_J, E_Cs_fit)
+plt.figure()
+plt.scatter(df['l (um)'], -1*transmon_properties[0,:]*1000)
+plt.plot(df['l (um)'], -1*transmon_properties_fit[0,:]*1000, color='red', linewidth=2.5)
+plt.plot()
+plt.xlabel('Pad Length ' + r' ($\mu m$)')
+plt.legend(['Simulated', 'Fit'])
+plt.ylabel('Anharmonicity (MHz)')
+plt.title('Anharmonicity vs Pad Length')
+plt.figure()
+plt.scatter(df['l (um)'], transmon_properties[1,:])
+plt.plot(df['l (um)'], transmon_properties_fit[1,:], color='red', linewidth=2.5)
+plt.xlabel('Pad Length ' + r' ($\mu m$)')
+plt.ylabel('Transition Frequency (GHz)')
+plt.legend(['Simulated', 'Fit'])
+plt.title('Qubit Frequency vs Pad Length')
+    
 
-# Extract the exterior coordinates of the polygon
-exterior_coords = polygon.exterior.coords.xy
-
-# Plot the polygon
-fig, ax = plt.subplots()
-ax.plot(exterior_coords[0], exterior_coords[1], 'b-', linewidth=2)
-
-# Optionally, plot the vertices
-ax.plot(exterior_coords[0], exterior_coords[1], 'ro')
-
-# Set the aspect ratio to be equal
-ax.set_aspect('equal')
-
-# Add grid and labels
-ax.grid(True)
-ax.set_xlabel('X')
-ax.set_ylabel('Y')
-ax.set_title('Polygon Plot')
-
-# Show the plot
-plt.show()
 # %%
-for c in coords:
-    print(c)
-# %%
-JJ_cutout = rec2(28, 60, 
-                         r = 15, 
-                         same_radius = True,  
-                         resolution = 5,
-                         d1 = [-1,1],
-                         d4 = [-1,-1])
+# print(np.linalg.inv(caps))
+import pickle
+import numpy as np
 
-JJ_cutout_left = draw.translate(JJ_cutout,
-                                        30, 
-                                        0)
+
+#%%
+capacitances = {}
+capacitances_df = {}
+for coupling_gap in np.arange(5,50,10):
+    default_options['gap'] = f'{coupling_gap}um'
+    qubit = DiffTransmonRounded(design, f'Q1_{coupling_gap}', options = default_options)
+    gui.rebuild()
+    c1.sim.run(components=[f'Q1_{coupling_gap}'], open_terminations=[(f'Q1_{coupling_gap}', 'cpw_stub')])
+    df = c1.sim.capacitance_matrix
+    cap_matrix = df.to_numpy()
+    caps = np.linalg.inv(T)@np.absolute(cap_matrix)@np.linalg.inv(T)
+    print(np.linalg.inv(caps))
+    capacitances[coupling_gap] = np.linalg.inv(caps)
+    capacitances_df[coupling_gap] = df
+    
+    # Save the capacitances dictionary to a file
+    with open('capacitances.pkl', 'wb') as f:
+        pickle.dump(capacitances, f)
+
+    # Save the capacitances_df dictionary to a file
+    with open('capacitances_df.pkl', 'wb') as f:
+        pickle.dump(capacitances_df, f)
+
+    # To load the dictionaries back
+    with open('capacitances.pkl', 'rb') as f:
+        loaded_capacitances = pickle.load(f)
+
+    with open('capacitances_df.pkl', 'rb') as f:
+        loaded_capacitances_df = pickle.load(f)
+
+    print(loaded_capacitances)
+    print(loaded_capacitances_df)
 # %%
-JJ_cutout_left.exterior.coords.xy
+# To load the dictionaries back
+with open('capacitances.pkl', 'rb') as f:
+    loaded_capacitances = pickle.load(f)
+
+with open('capacitances_df.pkl', 'rb') as f:
+    loaded_capacitances_df = pickle.load(f)
+
+print(loaded_capacitances)
+print(loaded_capacitances_df)
 # %%
+c1.sim.close()
