@@ -172,13 +172,18 @@ design.overwrite_enabled = True #This makes it possible to edit the designs late
 
 
 # %%
+maximum_jj_w = 500 #nm
+small_jj_length = 20#nm
+
+
+
 dose_array_options = Dict(
     pos_x = '0um', 
     pos_y = '0um',
-    w_pocket = '350 um',
-    h_pocket = '200 um',
-    w_pad = '150 um',
-    h_pad = '100 um',
+    w_pocket = '900 um',
+    h_pocket = '600 um',
+    w_pad = '400 um',
+    h_pad = '300 um',
     pad_gap = '7 um',
     orientation = '0',
     layer = '0',
@@ -188,14 +193,16 @@ JJ_options = Dict(
     pos_x = '0um',
     pos_y = '0um',
     w_pad_pin = '2 um',
-    w_pad_u = '2.8 um',
+    maximum_jj_width = '500nm',
+    small_jj_length = '400nm',
+    w_pad_u = '3 um',
     d_pin = '250 nm',
-    d_u = '300 nm',
-    total_length = '10 um',
+    d_u = '500 nm',
+    total_length = '1 um',
     w_top_pin = '250 nm',
-    w_top_u = '300 nm',
+    w_top_u = '500 nm',
     w_bot_pin = '200 nm',
-    w_bot_u = '300 nm',
+    w_bot_u = '500 nm',
     top_bot_offset = '0 nm' ,
     jj_extra = '600nm',
     jj_gap = '0.2um',
@@ -215,8 +222,9 @@ JJ_options1['d_pin'] = '3um'
 JJ_options1['d_u'] = '4um'
 JJ_options1['w_pad_pin'] = '5um'
 JJ_options1['w_pad_u'] = '6um'
-JJ_options1['total_length'] = '20um'
+JJ_options1['total_length'] = '13um'
 JJ_options1['jj_extra'] = '0um'
+JJ_options1['small_jj_length'] = '600nm'
 
 
 def junction_probe_pad(x,y,jj_w,jj_gap, name, dose_array_options = dose_array_options, JJ_options = JJ_options):
@@ -234,10 +242,10 @@ def junction_probe_pad(x,y,jj_w,jj_gap, name, dose_array_options = dose_array_op
 
 
 # %%
-chip_size = 5500 #um
+chip_size = 6500 #um
 
-x_gap = 500
-y_gap = 300
+x_gap = 1000
+y_gap = 1000
 
 x_array = np.arange(-chip_size/2, chip_size/2, x_gap)
 y_array = np.arange(-chip_size/2, chip_size/2, y_gap)
@@ -247,7 +255,7 @@ y_array = np.arange(-chip_size/2, chip_size/2, y_gap)
 i = len(x_array)
 j = len(y_array)
 
-print(i,j)
+
 
 jj_gap = np.linspace(100,500,i)
 jj_w = np.linspace(0,400,j)
@@ -265,9 +273,17 @@ for ii in range(i):
 
 gui.rebuild()
 
+# %% 
+
+
 
 # %%
+# design.delete_all_components()
 
+# jj = DolanJunctionBandage(design,'JJ',JJ_options1)
+# gui.rebuild()
+
+#%%
 
 a_gds = design.renderers.gds
 
@@ -306,4 +322,17 @@ a_gds.export_to_gds('dose_chip.gds')
 # %%
 # a_gds.options
 # %%
+import gdspy as gp
 
+text = "Hello, GDS!"
+size = 10  # Size of the text
+position = (0, 0)  # Position of the text
+layer = 1  # GDSII layer number
+
+test_element = gp.Text('haha',size, position, layer=layer)
+polygons = test_element.polygons
+
+
+# %%
+print(polygons)
+# %%

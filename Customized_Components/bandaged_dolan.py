@@ -56,6 +56,8 @@ class DolanJunctionBandage(QComponent):
         pos_x = '0um', 
         pos_y = '0um',
         w_pad_pin = '2 um',
+        maximum_jj_width = '500nm',
+        small_jj_length = '20nm',
         w_pad_u = '2.8 um',
         d_pin = '250 nm',
         d_u = '600 nm',
@@ -119,31 +121,48 @@ class DolanJunctionBandage(QComponent):
 
         top_bot_offset = p.top_bot_offset
         total_height = p.total_length
+        small_jj_length = p.small_jj_length
+        
+        maximum_jj_width = p.maximum_jj_width
+        
+        
+        
+        
         jj_gap = p.jj_gap
         finger_length = total_height - jj_gap
-        top_finger_len = finger_length/2-top_bot_offset + jj_extra
-        bot_finger_len = finger_length/2+top_bot_offset + jj_extra
+        top_finger_len = max(finger_length/2-top_bot_offset + jj_extra-small_jj_length,0)
+        bot_finger_len = max(finger_length/2+top_bot_offset + jj_extra-small_jj_length,0)
 
         resolution = p.resolution
 
         pad_pin = rec2(w_pad_pin, d_pin,)
         pad_u = rec2(w_pad_u, d_u)
 
-        top_pin = rec2(w_top_pin, top_finger_len)
-        bot_pin = rec2(w_bot_pin, bot_finger_len)
+        top_pin = rec2(maximum_jj_width, top_finger_len)
+        bot_pin = rec2(maximum_jj_width, bot_finger_len)
 
         finger_u = rec2(max(w_top_u,w_bot_u), total_height+jj_extra*2+p.uc_override_pad*2)
 
         top_pad_pin = draw.translate(pad_pin, 0, total_height/2-d_pin/2)
         bot_pad_pin = draw.translate(pad_pin, 0, -total_height/2+d_pin/2)
         
+        finger_top = rec2(w_top_pin, small_jj_length)
+        finger_bot = rec2(w_bot_pin, small_jj_length, )
+        
+        # finger_top = rec2( small_jj_length,w_top_pin,)
+        # finger_bot = rec2(w_bot_pin, small_jj_length, )
+        
+        
+        finger_top = draw.translate(finger_top, 0, small_jj_length/2+jj_gap/2)
+        finger_bot = draw.translate(finger_bot, 0, -small_jj_length/2-jj_gap/2)
+        
         top_pad_u = draw.translate(pad_u, 0, total_height/2-d_pin/2)
         bot_pad_u = draw.translate(pad_u, 0, -total_height/2+d_pin/2)
 
-        top_finger_pin = draw.translate(top_pin, 0, top_finger_len/2+jj_gap/2 )
-        bot_finger_pin = draw.translate(bot_pin, 0, -bot_finger_len/2-jj_gap/2)
+        top_finger_pin = draw.translate(top_pin, 0, top_finger_len/2+jj_gap/2 + small_jj_length )
+        bot_finger_pin = draw.translate(bot_pin, 0, -bot_finger_len/2-jj_gap/2-small_jj_length)
 
-        metal_all = draw.shapely.ops.unary_union([top_pad_pin, bot_pad_pin, top_finger_pin, bot_finger_pin])
+        metal_all = draw.shapely.ops.unary_union([top_pad_pin, bot_pad_pin, top_finger_pin, bot_finger_pin, finger_top, finger_bot])
 
         under_cut  = draw.shapely.ops.unary_union([top_pad_u, bot_pad_u,finger_u])
 
