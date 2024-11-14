@@ -308,11 +308,16 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         #     center_metal_etch = draw.shapely.ops.unary_union([center_metal_etch, cutout_bot])
 
         # #rotate and translate
-        poly_metal = draw.union([pad_right, pad_left, coupling_stub_top, coupling_stub_bot, coupling_pad, cpw_stub])
+        connector_pad = draw.union([coupling_pad, cpw_stub])
+        pad_left = draw.union([pad_left, coupling_stub_top, coupling_stub_bot])
+        
+        # poly_metal = draw.union([pad_right, pad_left, coupling_stub_top, coupling_stub_bot, coupling_pad, cpw_stub])
         if istunnel == 'True':
-            polys = poly_metal.difference(JJ_cutouts)
+            pad_left = pad_left.difference(JJ_cutouts)
+            pad_right = pad_right.difference(JJ_cutouts)
         else:
-            polys = poly_metal
+            pass
+        polys = [pad_right, pad_left, connector_pad]
         polys = draw.rotate(polys, p.orientation, origin=(0, 0))
         polys = draw.translate(polys, p.pos_x, p.pos_y)
         
@@ -329,7 +334,7 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
 
         # generate qgeometry
         self.add_qgeometry('poly', 
-                           dict(cross=polys), 
+                           dict(pad_left=polys[1], pad_right = polys[0],resonator_pad = polys[-1],), 
                            chip=chip)
         self.add_qgeometry('poly', 
                            dict(center_metal_etch=cutout_pad), 
