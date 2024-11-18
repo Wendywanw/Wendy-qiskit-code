@@ -36,12 +36,12 @@ design = designs.DesignPlanar({}, True)
 design.overwrite_enabled = True
 design.chips.main.size['size_x'] = '7 mm'
 design.chips.main.size['size_y'] = '7 mm'
-design.variables['cpw_wdith'] = '14.18 um'
-design.variables['cpw_gap'] = '8 um'
-design.variables['trace_width'] = '14.18 um'
-cpw_pin_width = 14.18*u.um
-design.variables['trace_gap'] = '8 um'
-cpw_gap = 6.09*u.um
+design.variables['cpw_wdith'] = '15 um'
+design.variables['cpw_gap'] = '8.3 um'
+design.variables['trace_width'] = '15 um'
+cpw_pin_width = 15*u.um
+design.variables['trace_gap'] = '8.3 um'
+cpw_gap = 8.3*u.um
 design.variables['pad_buffer_radius'] = '30 um'
 design.variables['buffer_resolution'] = '3'
 design.variables['connection_pad_buffer_radius'] = '2 um'
@@ -170,7 +170,7 @@ def init_hfss_sim(nmode = 2, Ljs = ['13nH'], max_passes = 30, min_passes = 10, c
     eig_all.sim.renderer.options['y_buffer_width_mm'] = 0.5
     for i,Lj in enumerate(Ljs):
         eig_all.sim.setup.vars ['Lj'.format(i+1)] = Lj
-        eig_all.sim.setup.vars ['Cj'.format(i+1)] = jj.find_junction_capacitance(float(Lj[:-2]))
+        eig_all.sim.setup.vars ['Cj'.format(i+1)] = f'{(jj.find_junction_capacitance(float(Lj[:-2])*u.nH)).to(u.fF).value}fF'
     return eig_all, renderer_hfss, hfss
 
 def change_inductance(Ljs, eig_all, c1):
@@ -178,9 +178,9 @@ def change_inductance(Ljs, eig_all, c1):
     for i,Lj in enumerate(Ljs):
         eig_all.sim.setup.vars ['Lj'.format(i+1)] = Lj
         c1.sim.setup.vars ['Lj'.format(i+1)] = Lj
-        cc = jj.find_junction_capacitance(float(Lj[:-2]))
-        eig_all.sim.setup.vars ['Cj'.format(i+1)] = cc
-        c1.sim.setup.vars ['Cj'.format(i+1)] = cc
+        cc = jj.find_junction_capacitance(float(Lj[:-2])*u.nH)
+        eig_all.sim.setup.vars ['Cj'.format(i+1)] = f'{(cc).to(u.fF).value}fF'
+        c1.sim.setup.vars ['Cj'.format(i+1)] = f'{(cc).to(u.fF).value}fF'
 
 def construct_cpw(q,j, TQ, pad_size, offset, extend, gapp, Lj, Cj, TQx,TQy, small, TQ_mir,gui, design, displacement = '0um', buffer = 150*u.um, sim  = True, eig_all = ''):
     ''' construct the cpw and the qubit'''

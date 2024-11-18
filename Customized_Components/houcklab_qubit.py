@@ -317,7 +317,10 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
             pad_right = pad_right.difference(JJ_cutouts)
         else:
             pass
-        polys = [pad_right, pad_left, connector_pad]
+        jj_x, jj_y = self.get_jj_location0()
+        rect_jj = draw.LineString([(jj_x-gap/2, +jj_y), 
+                                   (jj_x+gap/2, jj_y)])
+        polys = [pad_right, pad_left, connector_pad, rect_jj, cutout_pad]
         polys = draw.rotate(polys, p.orientation, origin=(0, 0))
         polys = draw.translate(polys, p.pos_x, p.pos_y)
         
@@ -334,12 +337,19 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
 
         # generate qgeometry
         self.add_qgeometry('poly', 
-                           dict(pad_left=polys[1], pad_right = polys[0],resonator_pad = polys[-1],), 
+                           dict(pad_left=polys[1], pad_right = polys[0],resonator_pad = polys[2],), 
                            chip=chip)
         self.add_qgeometry('poly', 
-                           dict(center_metal_etch=cutout_pad), 
+                           dict(center_metal_etch=polys[4]), 
                            chip=chip, 
                            subtract=True)
+        print(p.junction)
+        if p.junction == 'False' or p.junction == False:
+            self.add_qgeometry('junction',
+                           dict(rect_jj=polys[3]),
+                           width=min(p.gap,0.003),
+                           chip=chip)
+            print('junction added')
         
         # self.add_qgeometry('poly',
         #                    dict(cross_etch=cross_etch),
@@ -352,8 +362,15 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         #                    chip=chip)
     def get_jj_location(self):
         p = self.p
-        junction_displacement = p.cpw_l+p.coupling_d+p.coupling_gap+p.coupling_pad_w+p.gap/2
+        junction_displacement = p.cpw_l+p.coupling_d+p.coupling_gap+p.w+p.gap/2
         junction_loc_x = junction_displacement*np.cos(np.radians(p.orientation))+p.pos_x
         junction_loc_y = junction_displacement*np.sin(np.radians(p.orientation))+p.pos_y
         return (junction_loc_x, junction_loc_y)
+    
+    def get_jj_location0(self):
+        p = self.p
+        junction_displacement = p.cpw_l+p.coupling_d+p.coupling_gap+p.w+p.gap/2
+        jj_x = junction_displacement
+        jj_y = 0
+        return (jj_x, jj_y)
 
