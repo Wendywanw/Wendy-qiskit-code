@@ -277,38 +277,29 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         cpw_stub = rec(cpw_l*2,p.cpw_pin,0, resolution = 1)
         cpw_stub = draw.translate(cpw_stub, cpw_l, 0)
         
-        # x, y = coupling_stub_top.exterior.xy
-
-        # # Plot the shape using Matplotlib
-        # fig, ax = plt.subplots()
-        # ax.plot(x, y, color='blue')
-
-        # # Set the aspect ratio to be equal
-        # ax.set_aspect('equal')
-
-        # # Add grid and labels
-        # ax.grid(True)
-        # ax.set_xlabel('X')
-        # ax.set_ylabel('Y')
-
-        # # Show the plot
-        # plt.show()
-
-        # if p.junction == 'True':
-        #     cut_out = draw.rectangle(p.inductor_width/4, p.jj_pocket_extent/4)
-        #     cut_out_big = draw.rectangle(p.inductor_width/2, p.jj_pocket_extent/4)
-        #     cut_out_big = draw.translate(cut_out_big, 0, p.jj_pocket_extent/4)
-        #     cutout = draw.shapely.ops.unary_union([cut_out, cut_out_big])
-            
-        #     cutout_top = draw.translate(cutout,0,-p.cross_length)
-        #     cutout_bot = draw.rotate(cutout, 180, origin=(0,0))
-        #     cutout_bot = draw.translate(cutout_bot,0,-p.cross_length-p.cross_gap)
-
-        #     center_metal = center_metal.difference(cutout_top)
-        #     center_metal_etch = draw.shapely.ops.unary_union([center_metal_etch, cutout_bot])
+        ## add taper to reduce junction length
+        jj_gap = p.JJ_gap
+        jj_contact_size = p.JJ_contact_size
+        jj_contact_width = (gap-jj_gap)/2
+        taper = rec2(jj_contact_size, 
+                     jj_contact_width, 
+                     same_radius = False,  
+                     r1 = 0,
+                     r2 = jj_contact_size/2,
+                     r3 = jj_contact_size/2,
+                     r4 = 0,
+                     resolution = 5,
+                     d1 = [-1,1],
+                     d2 = [1,-1],
+                     d3 = [1,1],
+                     d4 = [-1,-1]
+                     )
+        taper_left = draw.translate(taper, junction_location-gap/2+jj_contact_width/2, 0)
+        taper_right = draw.rotate(taper, 180, origin = (0,0))
+        taper_right = draw.translate(taper_right, junction_location+gap/2-jj_contact_width/2, 0)
 
         # #rotate and translate
-        connector_pad = draw.union([coupling_pad, cpw_stub])
+        connector_pad = draw.union([coupling_pad, cpw_stub, taper_left, taper_right])
         pad_left = draw.union([pad_left, coupling_stub_top, coupling_stub_bot])
         
         # poly_metal = draw.union([pad_right, pad_left, coupling_stub_top, coupling_stub_bot, coupling_pad, cpw_stub])
