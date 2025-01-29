@@ -65,6 +65,7 @@ class Text_object(QComponent):
         text_height = '200 um',
         orientation = '0',
         layer = '0',
+        subtract = False,
         )
     """Default drawing options"""
 
@@ -126,7 +127,7 @@ class Text_object(QComponent):
         # Use the geometry to create Metal qgeometry
         self.add_qgeometry('poly',
                            dict(poly_final=poly_final),
-                           chip=chip, layer = p.layer, subtract = True)
+                           chip=chip, layer = p.layer, subtract = p.subtract)
 
         # self.add_qgeometry('poly', dict(cut = cut), 
         #                    subtract=True, layer=p.layer,

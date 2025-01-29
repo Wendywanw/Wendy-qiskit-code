@@ -9,4 +9,21 @@ sin_value = np.sin(angle_radians)
 print(sin_value)
 
 # %%
+import sys
+sys.path.append('../Customized_Components')
+import Transmon_property as trans_p
+import Transmon_specifications as jj
 
+import astropy.units as u
+#%%
+Jc = 0.38*u.uA/u.um**2
+# %%
+(jj.find_junction_area(13.676453476080171*u.nH, Jc = Jc)/140/u.nm).to(u.nm)
+# %%
+17.095566845100272
+(jj.find_junction_area(17.095566845100272*u.nH, Jc = Jc)/140/u.nm).to(u.nm)
+# %%
+11.397044563400145
+(jj.find_junction_area(11.397044563400145*u.nH, Jc = Jc)/140/u.nm).to(u.nm)
+
+# %%

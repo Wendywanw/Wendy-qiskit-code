@@ -192,7 +192,7 @@ dose_array_options = Dict(
     h_pad = '300 um',
     pad_gap = '7 um',
     orientation = '0',
-    layer = '0',
+    layer = '5',
     )
 
 text_options = Dict(
@@ -201,8 +201,8 @@ text_options = Dict(
         text = 'haha',
         text_height = '20 mm',
         orientation = '0',
-        layer = '0',
-        subtract = 'True'
+        layer = '5',
+        subtract = 'False'
         )
 
 
@@ -229,7 +229,11 @@ JJ_options = Dict(
     # Lj = '10',
     resolution = '5',
     # Jc = '0.1',
-    orientation = '90',
+    bandage = 'True',
+    bandage_size = '20 um',
+    bandage_layer = '299',
+    bandage_uc_layer = '699',
+    orientation = '270',
     pin_layer = '20',
     gap_layer = '60',
     area_layer_opt = 'False',
@@ -296,7 +300,6 @@ for ii in range(i):
         text_options['text'] = 'G'+ '{:.0f}'.format(jj_gap[jj]) + 'W'+ '{:.0f}'.format(jj_w[ii])
         text_options['text_height'] = '50um'
         text_options['orientation'] = '0'
-        text_options['subtract'] = 'False'
         Text_object(design, 'G'+ '{:.0f}'.format(jj_gap[jj]) + 'W'+ '{:.0f}'.format(jj_w[ii]),text_options)
 
 
@@ -363,7 +366,7 @@ a_gds.options['no_cheese']['view_in_file']['main'][1] = False
 a_gds.options.tolerance = '0.0000005'
 a_gds.options.precision = '0.0000000005'
 
-a_gds.export_to_gds('dose_chip.gds')
+a_gds.export_to_gds('dose_chip_wbandage.gds')
 
 
 # %%

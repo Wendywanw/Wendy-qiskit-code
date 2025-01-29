@@ -3,7 +3,7 @@ import numpy as np
 import astropy.constants as c
 
 
-Jc = 0.1*u.uA/(u.um)**2
+Jc = 0.4*u.uA/(u.um)**2
 Sc = 67*u.fF/(u.um)**2
 
 Phi0 = c.h/2/c.e.si
@@ -23,3 +23,9 @@ def place_junction(q,junction):
     junction.options.pos_x = x_pos
     junction.options.pos_y = '-'+'('+y_pos+')'+'+'+q.options.pos_y
     return q, junction
+
+def find_junction_inductance(l,w, Jc = Jc):
+    ic = l*w*Jc
+    Ej = ic*Phi0/2/np.pi
+    Lj = ((Phi0/2/np.pi)**2/Ej).to(u.nH)
+    return Lj, Ej/c.h

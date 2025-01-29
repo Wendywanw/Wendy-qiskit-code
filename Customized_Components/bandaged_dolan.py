@@ -70,7 +70,13 @@ class DolanJunctionBandage(QComponent):
         jj_extra = '400nm',
         jj_gap = '0.2um',
         fillet = '30 nm',
-        uc_override_pad = '300nm',        # jj_gap_actual = '0.2um',
+        uc_override_pad = '300nm', 
+        bandage = 'False',
+        bandage_h = '20um',
+        bandage_w = '20um',
+        bandage_layer = '299',
+        bandage_uc_layer = '699',
+        # jj_gap_actual = '0.2um',
         # Lj = '10',
         resolution = '5',
         # Jc = '0.1',
@@ -79,7 +85,11 @@ class DolanJunctionBandage(QComponent):
         gap_area_layer = '1',
         dimension_text = 'False',
         jj_orientation = '180',
-        uc_override = '30nm',)
+        uc_override = '30nm',
+        tapered = 'False',
+        taper_r = '10um',
+        bandage_loc = '0um',
+        uc_override_band = '1um',)
     """Default drawing options"""
 
     component_metadata = Dict(short_name='Pocket',
@@ -134,17 +144,58 @@ class DolanJunctionBandage(QComponent):
         bot_finger_len = max(finger_length/2+top_bot_offset + jj_extra-small_jj_length,0)
 
         resolution = p.resolution
-
-        pad_pin = rec2(w_pad_pin, d_pin,)
-        pad_u = rec2(w_pad_u, d_u)
+        if p.tapered == 'True':
+            taper_r = p.taper_r
+            pad = rec2(w_pad_pin, 
+                     d_pin, 
+                     same_radius = False,  
+                     r1 = 0,
+                        r2 = 0,
+                        r3 = taper_r,
+                        r4 = taper_r,
+                        resolution = int(taper_r/0.002),
+                        d1 = [-1,-1],
+                        d2 = [-1,1],
+                        d3 = [-1,1],
+                        d4 = [1,1]
+                        )
+            pad = draw.translate(pad, 0, taper_r/2)
+            rectangle = rec2(w_pad_pin*10, d_pin*10,)
+            rectangle = draw.translate(rectangle, 0, d_pin*10/2+d_pin)            
+            pad_pin = pad.difference(rectangle)
+            pad_u = draw.shapely.buffer(pad, p.uc_override_pad)
+            pad_u = pad_u.difference(pad)
+        else:
+            pad_pin = rec2(w_pad_pin, d_pin,)
+            pad_u = rec2(w_pad_u, d_u)
 
         top_pin = rec2(maximum_jj_width, top_finger_len)
         bot_pin = rec2(maximum_jj_width, bot_finger_len)
 
         finger_u = rec2(max(w_top_u,w_bot_u), total_height+jj_extra*2+p.uc_override_pad*2)
-
-        top_pad_pin = draw.translate(pad_pin, 0, total_height/2-d_pin/2)
-        bot_pad_pin = draw.translate(pad_pin, 0, -total_height/2+d_pin/2)
+        
+        if p.tapered == 'False':
+            top_pad_pin = draw.translate(pad_pin, 0, total_height/2-d_pin/2)
+            bot_pad_pin = draw.translate(pad_pin, 0, -total_height/2+d_pin/2)
+        else:
+            top = pad_pin
+            bot = draw.rotate(pad_pin, 180, origin = (0,0))
+            top_pad_pin = draw.translate(top, 0, total_height/2-d_pin)
+            bot_pad_pin = draw.translate(bot, 0, -total_height/2+d_pin)
+        
+        b_w = p.bandage_w
+        b_h = p.bandage_h
+        dis = p.bandage_loc
+        bandage_pad = rec2(b_w, b_h)
+        bandage_pad_top = draw.translate(bandage_pad, 0, total_height/2+b_h/2-d_pin/4*3+dis)
+        bandage_pad_bot = draw.translate(bandage_pad, 0, -total_height/2-b_h/2+d_pin/4*3-dis)
+        bandage_pads = draw.shapely.ops.unary_union([bandage_pad_top, bandage_pad_bot])
+        
+        bandage_pad_uc = rec2(b_w+p.uc_override_band, b_h+p.uc_override_band)
+        bandage_pad_uc = bandage_pad_uc.difference(bandage_pad)
+        bandage_pad_top_uc = draw.translate(bandage_pad_uc, 0, total_height/2+b_h/2-d_pin/4*3+dis)
+        bandage_pad_bot_uc = draw.translate(bandage_pad_uc, 0, -total_height/2-b_h/2+d_pin/4*3-dis)
+        bandage_pads_uc = draw.shapely.ops.unary_union([bandage_pad_top_uc, bandage_pad_bot_uc])
         
         finger_top = rec2(w_top_pin, small_jj_length)
         finger_bot = rec2(w_bot_pin, small_jj_length, )
@@ -168,8 +219,8 @@ class DolanJunctionBandage(QComponent):
 
         cut = under_cut.difference(metal_all)
         
-        components = draw.rotate([metal_all, cut], p.orientation, origin = (0,0))
-        all,cut = draw.translate(components, p.pos_x, p.pos_y)
+        components = draw.rotate([metal_all, cut, bandage_pads,bandage_pads_uc], p.orientation, origin = (0,0))
+        all,cut, bandage_pads,bandage_pads_uc = draw.translate(components, p.pos_x, p.pos_y)
         
         # if p.dimension_text:
         #     pass
@@ -181,3 +232,10 @@ class DolanJunctionBandage(QComponent):
         self.add_qgeometry('poly', dict(cut = cut), 
                            subtract=False, layer=p.gap_layer,
                            chip=chip)
+        if p.bandage == True or p.bandage == 'True':
+            self.add_qgeometry('poly', dict(bandage_pads = bandage_pads), 
+                           subtract=False, layer=p.bandage_layer,
+                           chip=chip)
+            self.add_qgeometry('poly', dict(bandage_pads_uc = bandage_pads_uc),
+                            subtract=False, layer=p.bandage_uc_layer,
+                            chip=chip)

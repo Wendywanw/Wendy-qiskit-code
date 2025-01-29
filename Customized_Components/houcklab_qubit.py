@@ -81,6 +81,8 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         cut_l='1000um',
         cut_h='1200um',
         gap='15um',
+        jj_gap='2um',
+        jj_contact_size='5um',
         w = '120um',
         l = '600um',
         r = '60um',
@@ -95,13 +97,15 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         JJ_c_contact_shortl = '10um',
         coupling_d = '350um',
         coupling_pad_w = '120um',
+        coupling_stub_w = '50um',
         coupling_r = '15um',
         cpw_pin = '5um',
         chip='main',
         resolution = '10',
         junction = 'False',
         orientation = '0',
-        istunnel = 'True')
+        istunnel = 'True', 
+        junction_taper_r = '10um',)
     """Default options."""
 
     component_metadata = Dict(short_name='DiffRound',
@@ -137,8 +141,9 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         coupling_d = p.coupling_d
         coupling_pad_w = p.coupling_pad_w
         resolution = p.resolution
-        coupling_r = min(coupling_pad_w/2,p.coupling_r)
-        coupling_r_stub = min(w/2,p.coupling_r)
+        coupling_stub_w = p.coupling_stub_w
+        coupling_r = min(coupling_pad_w/2,p.coupling_r, coupling_d/2)
+        coupling_r_stub = min(coupling_stub_w/2,p.coupling_r)
         JJ_c_contact_shortl = p.JJ_c_contact_shortl
         istunnel = p.istunnel
         
@@ -148,7 +153,7 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         coupling_stub_x = cpw_l+(coupling_d+coupling_gap)/2
         coupling_stub_y = w+coupling_gap
         
-        coupling_r_stub = min((l - 2*r)/2 - coupling_stub_y - w/2, coupling_r_stub)
+        coupling_r_stub = min((l - 2*r)/2 - coupling_stub_y - coupling_stub_w/2, coupling_r_stub)
 
         # access to chip name
         chip = p.chip
@@ -225,7 +230,7 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         sin = np.sin(np.radians(angle))
         
         coupling_stub_x = cpw_l+(coupling_d+coupling_gap)/2
-        coupling_stub_y = w/2+coupling_pad_w/2+coupling_gap
+        coupling_stub_y = coupling_stub_w/2+coupling_pad_w/2+coupling_gap
         
         # coupling_stub = rec(w,coupling_d+coupling_gap-w, coupling_r, resolution = resolution,connection = True,connection_direction = 270)
         # coupling_stub = draw.translate(coupling_stub,w/2 , 0)
@@ -233,62 +238,85 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         # sub_rounded = draw.translate(sub_rounded, -coupling_d/2+w, 0)
         
         # coupling_stub = draw.union([coupling_stub, sub_rounded])
-        
-        coupling_stub_top = rec2(coupling_d+coupling_gap, 
-                             w,
-                         same_radius = False,  
-                         r1 = coupling_r_stub,
-                         r2 = coupling_r_stub,
-                         r3 = coupling_r_stub,
-                         r4 = coupling_r,
-                         resolution = resolution,
-                         d1 = [-1,1],
-                         d2 = [1,-1],
-                         d3 = [1,1],
-                         d4 = [-1,-1]
-                         )
-        
-        coupling_stub_bot = rec2(coupling_d+coupling_gap, 
-                             w,
-                         same_radius = False,  
-                         r1 = coupling_r,
-                         r2 = coupling_r_stub,
-                         r3 = coupling_r_stub,
-                         r4 = coupling_r_stub,
-                         resolution = resolution,
-                         d1 = [-1,1],
-                         d2 = [1,-1],
-                         d3 = [1,1],
-                         d4 = [-1,-1]
-                         )
-        
-        coupling_stub_top = draw.rotate(coupling_stub_top, 180, origin = (0,0))
-        coupling_stub_bot = draw.rotate(coupling_stub_bot, 180, origin = (0,0))
+        if p.coupling_arm == 'False':
+            pass
+        else:
+            coupling_stub_top = rec2(coupling_d+coupling_gap, 
+                                coupling_stub_w,
+                            same_radius = False,  
+                            r1 = coupling_r_stub,
+                            r2 = coupling_r_stub,
+                            r3 = coupling_r_stub,
+                            r4 = coupling_r,
+                            resolution = resolution,
+                            d1 = [-1,1],
+                            d2 = [1,-1],
+                            d3 = [1,1],
+                            d4 = [-1,-1]
+                            )
+            
+            coupling_stub_bot = rec2(coupling_d+coupling_gap, 
+                                coupling_stub_w,
+                            same_radius = False,  
+                            r1 = coupling_r,
+                            r2 = coupling_r_stub,
+                            r3 = coupling_r_stub,
+                            r4 = coupling_r_stub,
+                            resolution = resolution,
+                            d1 = [-1,1],
+                            d2 = [1,-1],
+                            d3 = [1,1],
+                            d4 = [-1,-1]
+                            )
+            
+            coupling_stub_top = draw.rotate(coupling_stub_top, 180, origin = (0,0))
+            coupling_stub_bot = draw.rotate(coupling_stub_bot, 180, origin = (0,0))
 
-        
-        coupling_stub_top = draw.translate(coupling_stub_top, coupling_stub_x+1e-9, coupling_stub_y)
-        coupling_stub_bot = draw.translate(coupling_stub_bot, coupling_stub_x+1e-9, -coupling_stub_y)
-        
-        coupling_pad_r = min(r, coupling_pad_w/2)
+            
+            coupling_stub_top = draw.translate(coupling_stub_top, coupling_stub_x+1e-9, coupling_stub_y)
+            coupling_stub_bot = draw.translate(coupling_stub_bot, coupling_stub_x+1e-9, -coupling_stub_y)
+            
+        coupling_pad_r = min(r, coupling_pad_w/2, coupling_d/2)
+        self.options.coupling_pad_r = coupling_pad_r
         coupling_pad = rec(coupling_d,coupling_pad_w,  coupling_pad_r, resolution = resolution)
         
         coupling_pad = draw.translate(coupling_pad, cpw_l+coupling_d/2, 0)
         
-        cpw_stub = rec(cpw_l*2,p.cpw_pin,0, resolution = 1)
-        cpw_stub = draw.translate(cpw_stub, cpw_l, 0)
+        # cpw_stub = rec(cpw_l*2,p.cpw_pin,0, resolution = 1)
+        
+        cpw_taper_r = np.absolute(min(cpw_l/2, 
+                                      (coupling_pad_w-coupling_pad_r*2-p.cpw_pin)/2))
+        
+        cpw_stub = rec2(cpw_l,
+                            p.cpw_pin,
+                            same_radius = False,
+                            r1 = cpw_taper_r,
+                            r2 = 0,
+                            r3 = 0,
+                            r4 = cpw_taper_r,
+                            resolution = int(p.junction_taper_r/0.002),
+                            d1 = [-1,1],
+                            d2 = [1,-1],
+                            d3 = [1,1],
+                            d4 = [-1,-1]
+                            )
+        cpw_stub = draw.rotate(cpw_stub, 180, origin = (0,0))
+        cpw_stub = draw.translate(cpw_stub, cpw_l/2, 0)
+        
         
         ## add taper to reduce junction length
-        jj_gap = p.JJ_gap
-        jj_contact_size = p.JJ_contact_size
+        jj_gap = p.jj_gap
+        jj_contact_size = p.jj_contact_size
+        taper_r = p.jj_taper_r
         jj_contact_width = (gap-jj_gap)/2
-        taper = rec2(jj_contact_size, 
-                     jj_contact_width, 
+        taper = rec2(jj_contact_width, 
+                     jj_contact_size, 
                      same_radius = False,  
-                     r1 = 0,
-                     r2 = jj_contact_size/2,
-                     r3 = jj_contact_size/2,
-                     r4 = 0,
-                     resolution = 5,
+                     r1 = taper_r,
+                     r2 = 0,
+                     r3 = 0,
+                     r4 = taper_r,
+                     resolution = int(taper_r/0.002),
                      d1 = [-1,1],
                      d2 = [1,-1],
                      d3 = [1,1],
@@ -300,7 +328,10 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
 
         # #rotate and translate
         connector_pad = draw.union([coupling_pad, cpw_stub, taper_left, taper_right])
-        pad_left = draw.union([pad_left, coupling_stub_top, coupling_stub_bot])
+        if p.coupling_arm == 'False':
+            pass
+        else:
+            pad_left = draw.union([pad_left, coupling_stub_top, coupling_stub_bot])
         
         # poly_metal = draw.union([pad_right, pad_left, coupling_stub_top, coupling_stub_bot, coupling_pad, cpw_stub])
         if istunnel == 'True':
@@ -309,8 +340,8 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         else:
             pass
         jj_x, jj_y = self.get_jj_location0()
-        rect_jj = draw.LineString([(jj_x-gap/2, +jj_y), 
-                                   (jj_x+gap/2, jj_y)])
+        rect_jj = draw.LineString([(jj_x-jj_gap/2, +jj_y), 
+                                   (jj_x+jj_gap/2, jj_y)])
         polys = [pad_right, pad_left, connector_pad, rect_jj, cutout_pad]
         polys = draw.rotate(polys, p.orientation, origin=(0, 0))
         polys = draw.translate(polys, p.pos_x, p.pos_y)
@@ -334,13 +365,13 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
                            dict(center_metal_etch=polys[4]), 
                            chip=chip, 
                            subtract=True)
-        print(p.junction)
+        # print(p.junction)
         if p.junction == 'False' or p.junction == False:
             self.add_qgeometry('junction',
                            dict(rect_jj=polys[3]),
-                           width=min(p.gap,0.003),
+                           width=min(jj_contact_width,0.003),
                            chip=chip)
-            print('junction added')
+            # print('junction added')
         
         # self.add_qgeometry('poly',
         #                    dict(cross_etch=cross_etch),

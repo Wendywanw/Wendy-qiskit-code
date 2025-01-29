@@ -1,0 +1,5 @@
+,ground_main_plane,pad_left_Q1,pad_right_Q1,resonator_pad_0_Q1
+ground_main_plane,309.03964,-95.40767,-96.20041,-16.87776
+pad_left_Q1,-95.40767,163.60263,-49.55007,-14.78002
+pad_right_Q1,-96.20041,-49.55007,150.53076,-0.52497
+resonator_pad_0_Q1,-16.87776,-14.78002,-0.52497,32.47135

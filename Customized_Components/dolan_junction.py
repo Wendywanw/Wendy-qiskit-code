@@ -82,7 +82,10 @@ class DolanJunction(QComponent):
         layer = '0',
         area_layer = '1',
         area_layer_opt = 'False',
-        jj_orientation = '180')
+        jj_orientation = '180',
+        tapered = 'True',
+        taper_r = '10um',
+        taper_straignt = '1um',)
     """Default drawing options"""
 
     component_metadata = Dict(short_name='Pocket',
@@ -141,6 +144,31 @@ class DolanJunction(QComponent):
         if special_jj:
             fat_finger_len += fat_finger_width + (p.thin_finger_len+p.taper_len+p.jj_gap)
 
+        # taper_r = p.taper_r
+        
+        # if p.tapered == 'False':
+        #     pad = rec(pad_width, pad_height, fillet, resolution)
+        #     pad_top = draw.translate(pad, 0, +total_height/2.-pad_height/2.)
+        #     pad_bot = draw.translate(pad, 0, -(total_height/2.-pad_height/2.))
+        # else:
+        #     pad = rec2(pad_width, 
+        #              taper_r, 
+        #              same_radius = False,  
+        #              r1 = taper_r,
+        #              r2 = taper_r,
+        #              r3 = 0,
+        #              r4 = 0,
+        #              resolution = int(taper_r/0.002),
+        #              d1 = [-1,1],
+        #              d2 = [1,-1],
+        #              d3 = [1,1],
+        #              d4 = [-1,-1]
+        #              )
+        #     pad = draw.translate(pad, 0, taper_r/2)
+        #     rectangle = rec(pad_width*10, pad_height*10, fillet, resolution)
+        #     rectangle = draw.translate(rectangle, 0, pad_height)
+        #     pad = pad.difference(rectangle)
+            
         pad = rec(pad_width, pad_height, fillet, resolution)
         pad_top = draw.translate(pad, 0, +total_height/2.-pad_height/2.)
         pad_bot = draw.translate(pad, 0, -(total_height/2.-pad_height/2.))
