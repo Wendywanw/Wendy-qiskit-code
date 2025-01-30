@@ -4,19 +4,23 @@ from collections import OrderedDict
 import astropy.units as u
 import numpy as np
 import pandas as pd
-from qiskit_metal import Dict
+from qiskit_metal import Dict, draw
+from qiskit_metal.qlibrary.core import QComponent
 from qiskit_metal.qlibrary.couplers.coupled_line_tee import CoupledLineTee
 from qiskit_metal.qlibrary.tlines.anchored_path import RouteAnchors
 from qiskit_metal.qlibrary.tlines.mixed_path import RouteMixed
+import os
 
-sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis'))
+from analysis import Transmon_specifications as jj
+from analysis import Transmon_property as trans_p
+from components.tm.Airbridge import airbridges as ab
+from components.junction.dolan_junction import DolanJunction as junction
+from components.misc.short_line_Segment import ShortRoute as short_path
 import Default_params as dp
-import Transmon_property as trans_p
-import Transmon_specifications as jj
-from Airbridge import airbridges as ab
-from dolan_junction import DolanJunction as junction
 from rounded_single_pad import Round_TransmonPocket_Single as transmon
-from short_line_Segment import ShortRoute as short_path
 
 
 class TransmonPocket():
@@ -376,6 +380,6 @@ class TransmonPocket():
         airb = ab(self.design, 'airbridge_connects' + self.options['coord'] + name, ab_options)
         self.connection_ab.append(airb)
         # self.gui.rebuild()
-        
+
 
 

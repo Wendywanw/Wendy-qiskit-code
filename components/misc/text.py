@@ -25,13 +25,6 @@ from shapely.geometry import Polygon, MultiPolygon
 from shapely.ops import unary_union
 
 
-import sys
-sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
-from rounded_rectangle import rounded_rec_only as rec
-from rounded_rectangle import rounded_rec as rec2
-import Transmon_specifications as jj
-
-
 
 class Text_object(QComponent):
     """A dose array coponent 

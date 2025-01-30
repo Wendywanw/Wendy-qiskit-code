@@ -21,10 +21,12 @@ from qiskit_metal import draw, Dict
 from qiskit_metal.qlibrary.core import QComponent
 
 import sys
-sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
-from rounded_rectangle import rounded_rec_only as rec
-from rounded_rectangle import rounded_rec as rec2
-import Transmon_specifications as jj
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis'))
+
+from components.misc import rec2
+
 
 
 

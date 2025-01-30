@@ -24,17 +24,18 @@
     |                 x              |
     |_________________|______________|
 """
-
-import numpy as np
-import astropy.units as u
-from qiskit_metal import draw, Dict
-from qiskit_metal.qlibrary.core import QComponent
-
 import sys
-sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
-from rounded_rectangle import rounded_rec_only as rec
-from rounded_rectangle import rounded_rec as rec2
-import Transmon_specifications as jj
+import astropy.units as u
+import numpy as np
+from qiskit_metal import Dict, draw
+from qiskit_metal.qlibrary.core import QComponent
+import os
+
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis'))
+from analysis import Transmon_specifications as jj
+from components.misc import rec2
+from components.misc import rec
 
 
 

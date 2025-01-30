@@ -30,8 +30,10 @@ from qiskit_metal import draw, Dict
 from qiskit_metal.qlibrary.core import BaseQubit
 
 import sys
-sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
-from rounded_rectangle import rounded_rec_only as rec
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+from components.misc import rec
+
 
 
 class Round_TransmonPocket_Single(BaseQubit):

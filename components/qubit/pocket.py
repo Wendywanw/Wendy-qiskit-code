@@ -11,13 +11,17 @@ from qiskit_metal.qlibrary.couplers.coupled_line_tee import CoupledLineTee
 
 import sys
 sys.path.append('/Users/wendy/Desktop/Wendy-qiskit-code/Customized_Components')
-from rounded_single_pad import Round_TransmonPocket_Single as transmon
-import Transmon_property as trans_p
-import Transmon_specifications as jj
-from dolan_junction import DolanJunction as junction
+import os
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis'))
+from analysis import Transmon_specifications as jj
+from analysis import Transmon_property as trans_p
+from components.misc import rec2, rec
+from components.tm.Airbridge import airbridges as ab
+from components.junction.dolan_junction import DolanJunction as junction
+from components.misc.short_line_Segment import ShortRoute as short_path
 import Default_params as dp
-from Airbridge import airbridges as ab
-from short_line_Segment import ShortRoute as short_path
+from rounded_single_pad import Round_TransmonPocket_Single as transmon
 
 
 class TransmonPocket():

@@ -19,10 +19,13 @@ import sys
 import numpy as np
 from qiskit_metal import Dict, draw
 from qiskit_metal.qlibrary.core import BaseQubit
+import os
 
-sys.path.append('../Customized_Components')
-from rounded_rectangle import rounded_rec as rec2
-from rounded_rectangle import rounded_rec_only as rec
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
+sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis'))
+from analysis import Transmon_specifications as jj
+from components.misc import rec2
+from components.misc import rec
 
 
 class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
