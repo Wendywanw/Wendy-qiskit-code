@@ -1,0 +1,142 @@
+{
+  "cut_l": [
+    "1000um",
+    "1000um",
+    "1000um"
+  ],
+  "cut_h": [
+    "1200um",
+    "1200um",
+    "1200um"
+  ],
+  "gap": [
+    "15um",
+    "15um",
+    "15um"
+  ],
+  "jj_gap": [
+    "2um",
+    "2um",
+    "2um"
+  ],
+  "jj_contact_size": [
+    "5um",
+    "5um",
+    "5um"
+  ],
+  "w": [
+    "120um",
+    "120um",
+    "120um"
+  ],
+  "l": [
+    "600um",
+    "600um",
+    "600um"
+  ],
+  "r": [
+    "60um",
+    "60um",
+    "60um"
+  ],
+  "cpw_l": [
+    "50um",
+    "50um",
+    "50um"
+  ],
+  "coupling_gap": [
+    "30um",
+    "30um",
+    "30um"
+  ],
+  "JJ_cutout_w": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "JJ_cutout_h": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "JJ_cutout_r": [
+    "15um",
+    "15um",
+    "15um"
+  ],
+  "JJ_c_contact_l": [
+    "40um",
+    "40um",
+    "40um"
+  ],
+  "JJ_c_contact_r": [
+    "2.5um",
+    "2.5um",
+    "2.5um"
+  ],
+  "JJ_c_contact_w": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "JJ_c_contact_shortl": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "coupling_d": [
+    "350um",
+    "350um",
+    "350um"
+  ],
+  "coupling_pad_w": [
+    "120um",
+    "120um",
+    "120um"
+  ],
+  "coupling_stub_w": [
+    "50um",
+    "50um",
+    "50um"
+  ],
+  "coupling_r": [
+    "15um",
+    "15um",
+    "15um"
+  ],
+  "cpw_pin": [
+    "5um",
+    "5um",
+    "5um"
+  ],
+  "chip": [
+    "main",
+    "main",
+    "main"
+  ],
+  "resolution": [
+    "10",
+    "10",
+    "10"
+  ],
+  "junction": [
+    "False",
+    "False",
+    "False"
+  ],
+  "orientation": [
+    "0",
+    "0",
+    "0"
+  ],
+  "istunnel": [
+    "True",
+    "True",
+    "True"
+  ],
+  "junction_taper_r": [
+    "10um",
+    "10um",
+    "10um"
+  ]
+}

@@ -1,0 +1,172 @@
+{
+  "pos_x": [
+    "0um",
+    "0um",
+    "0um"
+  ],
+  "pos_y": [
+    "0um",
+    "0um",
+    "0um"
+  ],
+  "w_pad_pin": [
+    "2 um",
+    "2 um",
+    "2 um"
+  ],
+  "maximum_jj_width": [
+    "500nm",
+    "500nm",
+    "500nm"
+  ],
+  "small_jj_length": [
+    "20nm",
+    "20nm",
+    "20nm"
+  ],
+  "w_pad_u": [
+    "2.8 um",
+    "2.8 um",
+    "2.8 um"
+  ],
+  "d_pin": [
+    "250 nm",
+    "250 nm",
+    "250 nm"
+  ],
+  "d_u": [
+    "600 nm",
+    "600 nm",
+    "600 nm"
+  ],
+  "total_length": [
+    "10 um",
+    "10 um",
+    "10 um"
+  ],
+  "w_top_pin": [
+    "250 nm",
+    "250 nm",
+    "250 nm"
+  ],
+  "w_top_u": [
+    "300 nm",
+    "300 nm",
+    "300 nm"
+  ],
+  "w_bot_pin": [
+    "200 nm",
+    "200 nm",
+    "200 nm"
+  ],
+  "w_bot_u": [
+    "300 nm",
+    "300 nm",
+    "300 nm"
+  ],
+  "top_bot_offset": [
+    "0 nm",
+    "0 nm",
+    "0 nm"
+  ],
+  "jj_extra": [
+    "400nm",
+    "400nm",
+    "400nm"
+  ],
+  "jj_gap": [
+    "0.2um",
+    "0.2um",
+    "0.2um"
+  ],
+  "fillet": [
+    "30 nm",
+    "30 nm",
+    "30 nm"
+  ],
+  "uc_override_pad": [
+    "300nm",
+    "300nm",
+    "300nm"
+  ],
+  "bandage": [
+    "False",
+    "False",
+    "False"
+  ],
+  "bandage_h": [
+    "20um",
+    "20um",
+    "20um"
+  ],
+  "bandage_w": [
+    "20um",
+    "20um",
+    "20um"
+  ],
+  "bandage_layer": [
+    "299",
+    "299",
+    "299"
+  ],
+  "bandage_uc_layer": [
+    "699",
+    "699",
+    "699"
+  ],
+  "resolution": [
+    "5",
+    "5",
+    "5"
+  ],
+  "orientation": [
+    "0",
+    "0",
+    "0"
+  ],
+  "pin_layer": [
+    "0",
+    "0",
+    "0"
+  ],
+  "gap_area_layer": [
+    "1",
+    "1",
+    "1"
+  ],
+  "dimension_text": [
+    "False",
+    "False",
+    "False"
+  ],
+  "jj_orientation": [
+    "180",
+    "180",
+    "180"
+  ],
+  "uc_override": [
+    "30nm",
+    "30nm",
+    "30nm"
+  ],
+  "tapered": [
+    "False",
+    "False",
+    "False"
+  ],
+  "taper_r": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "bandage_loc": [
+    "0um",
+    "0um",
+    "0um"
+  ],
+  "uc_override_band": [
+    "1um",
+    "1um",
+    "1um"
+  ]
+}

@@ -1,0 +1,87 @@
+{
+  "prime_width": [
+    "15 um",
+    "15 um",
+    "15 um"
+  ],
+  "prime_gap": [
+    "8.3 um",
+    "8.3 um",
+    "8.3 um"
+  ],
+  "second_width": [
+    "15 um",
+    "15 um",
+    "15 um"
+  ],
+  "second_gap": [
+    "8.3 um",
+    "8.3 um",
+    "8.3 um"
+  ],
+  "coupling_space": [
+    "5um",
+    "5um",
+    "5um"
+  ],
+  "coupling_length": [
+    "400 um + 90 um",
+    "400 um + 90um",
+    "400 um + 90um"
+  ],
+  "down_length": [
+    "150um",
+    "150um",
+    "150um"
+  ],
+  "fillet": [
+    "90um",
+    "90um",
+    "90um"
+  ],
+  "mirror": [
+    false,
+    false,
+    true
+  ],
+  "open_termination": [
+    true,
+    true,
+    true
+  ],
+  "pos_x": [
+    "1200um",
+    "1850um",
+    "-1800um"
+  ],
+  "pos_y": [
+    "1800um",
+    "1800um",
+    "1800um"
+  ],
+  "orientation": [
+    "0.0",
+    "0.0",
+    "0.0"
+  ],
+  "chip": [
+    "main",
+    "main",
+    "main"
+  ],
+  "layer": [
+    5,
+    5,
+    5
+  ],
+  "hfss_wire_bonds": [
+    false,
+    false,
+    false
+  ],
+  "q3d_wire_bonds": [
+    false,
+    false,
+    false
+  ]
+}

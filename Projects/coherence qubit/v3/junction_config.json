@@ -1,0 +1,247 @@
+{
+  "pos_x": [
+    -0.025000000000000022,
+    -1.685,
+    -1.545
+  ],
+  "pos_y": [
+    1.0,
+    -2.0,
+    -0.7
+  ],
+  "w_pad_pin": [
+    "2.5um",
+    "2.5um",
+    "2.5um"
+  ],
+  "maximum_jj_width": [
+    "1100nm",
+    "1100nm",
+    "1100nm"
+  ],
+  "small_jj_length": [
+    "600nm",
+    "600nm",
+    "600nm"
+  ],
+  "w_pad_u": [
+    "3um",
+    "3um",
+    "3um"
+  ],
+  "d_pin": [
+    "15um",
+    "15um",
+    "15um"
+  ],
+  "d_u": [
+    "18.8um",
+    "18.8um",
+    "18.8um"
+  ],
+  "total_length": [
+    "3um+18.8um*2",
+    "3um+18.8um*2",
+    "3um+18.8um*2"
+  ],
+  "w_top_pin": [
+    "1050 nm",
+    "1050 nm",
+    "1050 nm"
+  ],
+  "w_top_u": [
+    "1050 nm",
+    "1050 nm",
+    "1050 nm"
+  ],
+  "w_bot_pin": [
+    "420.69nm",
+    "336.56nm",
+    "504.83nm"
+  ],
+  "w_bot_u": [
+    "1050 nm",
+    "1050 nm",
+    "1050 nm"
+  ],
+  "top_bot_offset": [
+    "0 nm",
+    "0 nm",
+    "0 nm"
+  ],
+  "jj_extra": [
+    "0um",
+    "0um",
+    "0um"
+  ],
+  "jj_gap": [
+    "200nm",
+    "200nm",
+    "200nm"
+  ],
+  "fillet": [
+    "30 nm",
+    "30 nm",
+    "30 nm"
+  ],
+  "uc_override_pad": [
+    "300nm",
+    "300nm",
+    "300nm"
+  ],
+  "bandage": [
+    "True",
+    "True",
+    "True"
+  ],
+  "bandage_h": [
+    "30um",
+    "30um",
+    "30um"
+  ],
+  "bandage_w": [
+    "5um",
+    "5um",
+    "5um"
+  ],
+  "bandage_layer": [
+    "299",
+    "299",
+    "299"
+  ],
+  "bandage_uc_layer": [
+    "699",
+    "699",
+    "699"
+  ],
+  "resolution": [
+    "5",
+    "5",
+    "5"
+  ],
+  "orientation": [
+    "270",
+    "270",
+    "270"
+  ],
+  "pin_layer": [
+    "20",
+    "20",
+    "20"
+  ],
+  "gap_area_layer": [
+    "1",
+    "1",
+    "1"
+  ],
+  "dimension_text": [
+    "False",
+    "False",
+    "False"
+  ],
+  "jj_orientation": [
+    "0",
+    "0",
+    "0"
+  ],
+  "uc_override": [
+    "30nm",
+    "30nm",
+    "30nm"
+  ],
+  "tapered": [
+    "False",
+    "False",
+    "False"
+  ],
+  "taper_r": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "bandage_loc": [
+    "7um",
+    "7um",
+    "7um"
+  ],
+  "uc_override_band": [
+    "1um",
+    "1um",
+    "1um"
+  ],
+  "chip": [
+    "main",
+    "main",
+    "main"
+  ],
+  "layer": [
+    "1",
+    "1",
+    "1"
+  ],
+  "hfss_wire_bonds": [
+    false,
+    false,
+    false
+  ],
+  "q3d_wire_bonds": [
+    false,
+    false,
+    false
+  ],
+  "hfss_inductance": [
+    "10nH",
+    "10nH",
+    "10nH"
+  ],
+  "hfss_capacitance": [
+    0,
+    0,
+    0
+  ],
+  "hfss_resistance": [
+    0,
+    0,
+    0
+  ],
+  "hfss_mesh_kw_jj": [
+    7e-06,
+    7e-06,
+    7e-06
+  ],
+  "q3d_inductance": [
+    "10nH",
+    "10nH",
+    "10nH"
+  ],
+  "q3d_capacitance": [
+    0,
+    0,
+    0
+  ],
+  "q3d_resistance": [
+    0,
+    0,
+    0
+  ],
+  "q3d_mesh_kw_jj": [
+    7e-06,
+    7e-06,
+    7e-06
+  ],
+  "gds_cell_name": [
+    "my_other_junction",
+    "my_other_junction",
+    "my_other_junction"
+  ],
+  "gap_layer": [
+    "60",
+    "60",
+    "60"
+  ],
+  "area_layer_opt": [
+    "False",
+    "False",
+    "False"
+  ]
+}

@@ -21,9 +21,9 @@ from qiskit_metal import Dict, draw
 from qiskit_metal.qlibrary.core import BaseQubit
 import os
 
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis'))
-from analysis import Transmon_specifications as jj
+sys.path.append(os.path.join(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'),'..'))
+# import analysis.Transmon_specifications as jj
 from components.misc import rec2
 from components.misc import rec
 

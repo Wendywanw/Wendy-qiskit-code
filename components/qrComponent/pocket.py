@@ -11,8 +11,8 @@ from qiskit_metal.qlibrary.couplers.coupled_line_tee import CoupledLineTee
 
 import sys
 import os
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'))
-sys.path.append(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'analysis'))
+sys.path.append(os.path.join(
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), '..'),'..'))
 from analysis import Transmon_specifications as jj
 from analysis import Transmon_property as trans_p
 from components.misc import rec2, rec
@@ -22,37 +22,8 @@ from components.misc.short_line_Segment import ShortRoute as short_path
 import Default_params as dp
 from rounded_single_pad import Round_TransmonPocket_Single as transmon
 
-qubit_layer = 5
-junction_layer = 20
-ab_layer = 31
-ab_square_layer = 30
-junction_area_layer = 60
 
-CPW_options = Dict(trace_width = '13.3um',
-               trace_gap  = '6.09um',
-        total_length='5 mm',
-        hfss_wire_bonds = True,
-        q3d_wire_bonds = True,
-        fillet='30 um',
-        lead = dict(start_straight='5um', end_straight = '5um'),
-        pin_inputs=Dict(
-            start_pin=Dict(component='Q1', pin='a'),
-            end_pin=Dict(component='TQ1', pin='second_end')), )
-
-
-TQ_options = dict(coupling_length='170 um',
-                prime_width = '13.3um',
-               prime_gap = '6.09um',
-               second_width = '13.3um',
-               second_gap = '6.09um',
-               down_length = '60um',
-               coupling_space = '5um',
-               fillet = '30um',
-               open_termination=False,
-               hfss_wire_bonds = False,
-               q3d_wire_bonds = False)
-
-class TransmonPocket1():
+class TransmonPocket():
     default_options = dict(
         pos_x = '0mm', 
         pos_y = '0mm', 
@@ -61,22 +32,24 @@ class TransmonPocket1():
         guess_path = r'/Users/wendy/Desktop/Wendy-qiskit-code/data/educated_guess_0403_all.csv',
         coupling_path = '',
         coord = '(0,0)',
-        qubit_layer = qubit_layer,
-        junction_layer = junction_layer, 
-        junction_area_layer = junction_area_layer,
-        ab_layer = ab_layer,
-        ab_square_layer = ab_square_layer,
+        qubit_layer = 5,
+        junction_layer = 2, 
+        ab_layer = 8,
+        ab_square_layer = 9,
         ab_distance = '70um',
-        rotation = 0,
-        jj_orientation = 180,
-        jc = '0.1')
+        rotation = 0
+        )
     '''Default options for the transmon pocket.'''
     def __init__(self,
-                 design,
-                 sim = False,
-                 options: Dict = default_options,):
+                gui,
+                design: 'QDesign',
+                eig_all = '', 
+                sim:bool = False,
+                options: Dict = default_options,):
+        self.gui = gui
         self.design = design
         self.options = options
+        self.eig_all = eig_all
         self.sim = sim
         self.make_qubit_from_scratch()#design, gui, eig_all, sim)
         self.connection_cpws = []
@@ -86,16 +59,21 @@ class TransmonPocket1():
 
     def make_qubit_from_scratch(self):
         design = self.design
+        gui = self.gui 
+        eig_all = self.eig_all
+        sim = self.sim
         p = self.options
         rotation = p['rotation']
         rot_angle = np.radians(rotation)
+            # q,j, TQ, freq, gui, design, 
+        # print(p)
         guess_all = pd.read_csv(p['guess_path'])
         guesses = dp.slice_data(guess_all, p['frequency'])
-        size = guesses['Sizes (um)']*u.um + 0.9*u.um
+        size = guesses['Sizes (um)']*u.um
         buffer = guesses['Buffers (um)']*u.um
-        offset = guesses['Offsets (mm)'] 
-        coupling_len = guesses['Coupling_len(um)']*u.um+0.9*u.um
-        coupling_gap = guesses['Coupling_gap(um)']*u.um-0.9*u.um
+        offset = guesses['Offsets (mm)']
+        coupling_len = guesses['Coupling_len(um)']*u.um
+        coupling_gap = guesses['Coupling_gap(um)']*u.um
         Lj = guesses['Ljs']
         Cj = jj.find_junction_capacitance(int(Lj[:-2])*u.nH)
 
@@ -109,6 +87,7 @@ class TransmonPocket1():
         TQ_mir = guesses['TQ_mir']
         small = guesses['Small']
 
+        feedline_coupling_space = 0.002#guesses['Coupling_gap_feedline(um)']
         components = self.design.components
         delete = []
         for component in components:
@@ -118,9 +97,10 @@ class TransmonPocket1():
             design.delete_component(names)
         # #start making the components
         cpw_name = 'cpw_'+ p['coord']
+        # design.delete_component(cpw_name)
 
         #make the qubit
-        gap = 29.1*u.um
+        gap = 30*u.um
         size = size.to(u.um)
         pocket_width = (size+2*gap).to(u.um)
         
@@ -168,11 +148,7 @@ class TransmonPocket1():
                             taper_len='0.5um',
                             jj_gap = '0.14um',
                             Lj = Lj[:-2], 
-                            layer = p['junction_layer'],
-                            area_layer = p['junction_area_layer'],
-                            area_layer_opt = 'True',
-                            jj_orientation = p['jj_orientation'],
-                            jc = p['jc'])
+                            layer = p['junction_layer'])
                             
             j = junction(design, 'jj'+p['coord'], options = jj_options)
             y_pos = (q.options.pad_height) + '/2' + '+' + (q.options.jj_length) +'-'+ (j.options.total_length)+'/4'#+'+'+q.options.pos_y
@@ -190,10 +166,15 @@ class TransmonPocket1():
         l_name = 'Lj'+ p['coord']
         c_name = 'Cj'+ p['coord']
 
-        
+        # if sim:
+        #     eig_all.sim.renderer.options[l_name] = Lj
+        #     eig_all.sim.renderer.options[c_name] = Cj
+        #     eig_all.sim.setup.vars[l_name] = Lj
+        #     eig_all.sim.setup.vars[c_name] = Cj
+
         #make the coupled_line_tee
-        TQ_options['down_length'] = '42 um'
-        TQ_options['coupling_space'] = '{}um'.format(c_gap)
+        dp.TQ_options['down_length'] = '42 um'
+        dp.TQ_options['coupling_space'] = '{}um'.format(c_gap)
         tqx = design.parse_value(TQx)
         tqy= design.parse_value(TQy)
         qb_x= design.parse_value(q.options.pos_x)
@@ -208,7 +189,9 @@ class TransmonPocket1():
                                                     mirror = TQ_mir,
                                                     layer = p['qubit_layer'], 
                                                     orientation = -rotation,
-                                                    **TQ_options))
+                                                    **dp.TQ_options))
+        # gui.rebuild()
+        # print(TQ1.pins['second_end'], 'pin')
         self.Tee = TQ1
 
         #make the cpw
@@ -227,6 +210,8 @@ class TransmonPocket1():
 
             anchor_new[ind] = (x_new, y_new)
         anchors = anchor_new
+        # print('aa')
+        # design.delete_component(cpw_name)
         
         
         
@@ -234,12 +219,13 @@ class TransmonPocket1():
                     start_pin=Dict(component=q.name, pin='a'),
                     end_pin=Dict(component=TQ1.name, pin='second_end'))
         
-        CPW_options['pin_inputs'] = pin_inputs
-        CPW_options['layer'] = p['qubit_layer']
+        dp.CPW_options['pin_inputs'] = pin_inputs
+        dp.CPW_options['layer'] = p['qubit_layer']
         try:
-            CPW_options['lead'] = dict(start_straight='5um', end_straight = '5um')
+            dp.CPW_options['lead'] = dict(start_straight='5um', end_straight = '5um')
             print('tried1')
-            cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **CPW_options))
+        # cpw = dp.RouteMixed(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
+            cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
             
         except:
             self.design.delete_component('cpw_'+p['coord'])
@@ -250,30 +236,40 @@ class TransmonPocket1():
             test_pass = True
         if not test_pass:
             try:
-                CPW_options['lead'] = dict(start_straight='30um', end_straight = '30um')
-                CPW_options['total_length'] = '4mm'
+                dp.CPW_options['lead'] = dict(start_straight='30um', end_straight = '30um')
+                dp.CPW_options['total_length'] = '4mm'
                 print('tried22')
                 
-                cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **CPW_options))
+            # cpw = dp.RouteMixed(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
+                cpw = RouteAnchors(design, 'cpw_'+p['coord'], options = Dict(anchors = anchors, **dp.CPW_options))
             except:
                 self.design.delete_component('cpw_'+p['coord'])
                 test2 = False
                 test_pass = False
                 print(anchors)
-                print(CPW_options)
+                print(dp.CPW_options)
                 pass
                 
             else:
                 test_pass = True
+                # gui.rebuild()
             
         if test_pass:    
             self.resonator = cpw
 
             ab_options = Dict(cpw_name = cpw.name, distance = p['ab_distance'], dis = '50um', layer_ab_square = str(p['ab_square_layer']), layer_ab = str(p['ab_layer']), total_length = '80 um', chip = 'main', seg_num = '0')
             airb = ab(design, 'airbridges' + p['coord'], ab_options)
+            
+            # gui.rebuild()
             self.airbridge = airb
 
+        # self.qubit = q
+        # self.junction = j
+        # self.resonator = cpw
+        # self.Tee = TQ1
+        # self.airbridge = airb
 
+        # return q,j,cpw, TQ, design,gui, airb
     def connect(self,component, buffer = 0):
         
         design = self.design
@@ -406,3 +402,7 @@ class TransmonPocket1():
                           seg_num = '0')
         airb = ab(self.design, 'airbridge_connects' + self.options['coord'] + name, ab_options)
         self.connection_ab.append(airb)
+        # self.gui.rebuild()
+        
+
+

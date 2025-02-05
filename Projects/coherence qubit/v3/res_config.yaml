@@ -1,0 +1,220 @@
+_actual_length:
+- 8.287107827128471 mm
+- 8.287107827128471 mm
+- 8.287107827128471 mm
+chip:
+- main
+- main
+- main
+fillet:
+- 90um
+- 90um
+- 90um
+gap_width:
+- 8.3 um
+- 8.3 um
+- 8.3 um
+hfss_wire_bonds:
+- false
+- false
+- false
+layer:
+- 5
+- 5
+- 5
+lead:
+- &id005 !!python/object/new:addict.addict.Dict
+  args:
+  - !!python/tuple
+    - start_straight
+    - &id004
+      - 300 um
+      - 300 um
+      - 300 um
+  - !!python/tuple
+    - end_straight
+    - &id002
+      - 200 um
+      - 200 um
+      - 200 um
+  - !!python/tuple
+    - start_jogged_extension
+    - &id003
+      - ''
+      - ''
+      - ''
+  - !!python/tuple
+    - end_jogged_extension
+    - &id001
+      - ''
+      - ''
+      - ''
+  dictitems:
+    end_jogged_extension: *id001
+    end_straight: *id002
+    start_jogged_extension: *id003
+    start_straight: *id004
+  state: *id005
+- *id005
+- &id006 !!python/object/new:addict.addict.Dict
+  args:
+  - !!python/tuple
+    - start_straight
+    - 300 um
+  - !!python/tuple
+    - end_straight
+    - 200 um
+  - !!python/tuple
+    - start_jogged_extension
+    - ''
+  - !!python/tuple
+    - end_jogged_extension
+    - ''
+  dictitems:
+    end_jogged_extension: ''
+    end_straight: 200 um
+    start_jogged_extension: ''
+    start_straight: 300 um
+  state: *id006
+meander:
+- &id009 !!python/object/new:addict.addict.Dict
+  args:
+  - !!python/tuple
+    - spacing
+    - &id008
+      - 200um
+      - 200um
+      - 200um
+  - !!python/tuple
+    - asymmetry
+    - &id007
+      - 0um
+      - 0um
+      - 0um
+  dictitems:
+    asymmetry: *id007
+    spacing: *id008
+  state: *id009
+- *id009
+- &id010 !!python/object/new:addict.addict.Dict
+  args:
+  - !!python/tuple
+    - spacing
+    - 200um
+  - !!python/tuple
+    - asymmetry
+    - 0um
+  dictitems:
+    asymmetry: 0um
+    spacing: 200um
+  state: *id010
+pin_inputs:
+- &id017 !!python/object/new:addict.addict.Dict
+  args:
+  - !!python/tuple
+    - start_pin
+    - &id013 !!python/object/new:addict.addict.Dict
+      args:
+      - !!python/tuple
+        - component
+        - &id011
+          - Q3
+          - Q3
+          - Q3
+      - !!python/tuple
+        - pin
+        - &id012
+          - cpw_stub
+          - cpw_stub
+          - cpw_stub
+      dictitems:
+        component: *id011
+        pin: *id012
+      state: *id013
+  - !!python/tuple
+    - end_pin
+    - &id016 !!python/object/new:addict.addict.Dict
+      args:
+      - !!python/tuple
+        - component
+        - &id014
+          - tee1
+          - tee1
+          - tee1
+      - !!python/tuple
+        - pin
+        - &id015
+          - second_end
+          - second_end
+          - second_end
+      dictitems:
+        component: *id014
+        pin: *id015
+      state: *id016
+  dictitems:
+    end_pin: *id016
+    start_pin: *id013
+  state: *id017
+- *id017
+- &id020 !!python/object/new:addict.addict.Dict
+  args:
+  - !!python/tuple
+    - start_pin
+    - &id018 !!python/object/new:addict.addict.Dict
+      args:
+      - !!python/tuple
+        - component
+        - Q3
+      - !!python/tuple
+        - pin
+        - cpw_stub
+      dictitems:
+        component: Q3
+        pin: cpw_stub
+      state: *id018
+  - !!python/tuple
+    - end_pin
+    - &id019 !!python/object/new:addict.addict.Dict
+      args:
+      - !!python/tuple
+        - component
+        - tee1
+      - !!python/tuple
+        - pin
+        - second_end
+      dictitems:
+        component: tee1
+        pin: second_end
+      state: *id019
+  dictitems:
+    end_pin: *id019
+    start_pin: *id018
+  state: *id020
+pin_width:
+- 15 um
+- 15 um
+- 15 um
+prevent_short_edges:
+- 'true'
+- 'true'
+- 'true'
+q3d_wire_bonds:
+- false
+- false
+- false
+snap:
+- 'true'
+- 'true'
+- 'true'
+total_length:
+- 0.009287107827128471 m-1000um
+- 0.009287107827128471 m-1000um
+- 0.009287107827128471 m-1000um
+trace_gap:
+- 8.3 um
+- 8.3 um
+- 8.3 um
+trace_width:
+- 15 um
+- 15 um
+- 15 um

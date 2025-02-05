@@ -1,0 +1,54 @@
+{
+  "pos_x": [
+    "-2450um",
+    "2450um"
+  ],
+  "pos_y": [
+    "2100um",
+    "2100um"
+  ],
+  "orientation": [
+    "270",
+    "270"
+  ],
+  "chip": [
+    "main",
+    "main"
+  ],
+  "layer": [
+    "5",
+    "5"
+  ],
+  "trace_width": [
+    "15 um",
+    "15 um"
+  ],
+  "trace_gap": [
+    "8.3 um",
+    "8.3 um"
+  ],
+  "lead_length": [
+    "40.5um",
+    "40.5um"
+  ],
+  "pad_width": [
+    "500um",
+    "500um"
+  ],
+  "pad_height": [
+    "300um",
+    "300um"
+  ],
+  "pad_gap": [
+    "100um",
+    "100um"
+  ],
+  "taper_height": [
+    "100um",
+    "100um"
+  ],
+  "pin_space": [
+    "200um",
+    "200um"
+  ]
+}

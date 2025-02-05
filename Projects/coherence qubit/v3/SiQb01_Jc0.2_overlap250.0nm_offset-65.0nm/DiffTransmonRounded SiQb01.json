@@ -1,0 +1,227 @@
+{
+  "cut_l": [
+    "450um+250um+250um",
+    "600um+400um+400um",
+    "600um+400um+400um"
+  ],
+  "cut_h": [
+    "650um",
+    "1100um",
+    "1000um"
+  ],
+  "gap": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "jj_gap": [
+    "3um",
+    "3um",
+    "3um"
+  ],
+  "jj_contact_size": [
+    "3um",
+    "3um",
+    "3um"
+  ],
+  "w": [
+    "250um",
+    "400um",
+    "400um"
+  ],
+  "l": [
+    "510um",
+    "880um",
+    "550um"
+  ],
+  "r": [
+    "250um/2",
+    "400um/2",
+    "400um/2"
+  ],
+  "cpw_l": [
+    "100um",
+    "150um",
+    "100um"
+  ],
+  "coupling_gap": [
+    "20um",
+    "30um",
+    "30um"
+  ],
+  "JJ_cutout_w": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "JJ_cutout_h": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "JJ_cutout_r": [
+    "150um",
+    "150um",
+    "150um"
+  ],
+  "JJ_c_contact_l": [
+    "40um",
+    "40um",
+    "40um"
+  ],
+  "JJ_c_contact_r": [
+    "2.5um",
+    "2.5um",
+    "2.5um"
+  ],
+  "JJ_c_contact_w": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "JJ_c_contact_shortl": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "coupling_d": [
+    "70um",
+    "70um",
+    "80um"
+  ],
+  "coupling_pad_w": [
+    "100um",
+    "200um",
+    "100um"
+  ],
+  "coupling_stub_w": [
+    "90um",
+    "70um",
+    "90um"
+  ],
+  "coupling_r": [
+    "40um",
+    "40um",
+    "40um"
+  ],
+  "cpw_pin": [
+    "15 um",
+    "15 um",
+    "15 um"
+  ],
+  "chip": [
+    "main",
+    "main",
+    "main"
+  ],
+  "resolution": [
+    "10",
+    "10",
+    "10"
+  ],
+  "junction": [
+    "False",
+    "False",
+    "False"
+  ],
+  "orientation": [
+    "0",
+    "180",
+    "180"
+  ],
+  "istunnel": [
+    "False",
+    "False",
+    "False"
+  ],
+  "junction_taper_r": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "pos_x": [
+    "-500um",
+    "-1000um",
+    "-900um"
+  ],
+  "pos_y": [
+    "1000um",
+    "-2000um",
+    "-700um"
+  ],
+  "layer": [
+    "5",
+    "5",
+    "5"
+  ],
+  "connection_pads": [
+    {},
+    {},
+    {}
+  ],
+  "hfss_inductance": [
+    "10nH",
+    "10nH",
+    "10nH"
+  ],
+  "hfss_capacitance": [
+    0,
+    0,
+    0
+  ],
+  "hfss_resistance": [
+    0,
+    0,
+    0
+  ],
+  "hfss_mesh_kw_jj": [
+    7e-06,
+    7e-06,
+    7e-06
+  ],
+  "q3d_inductance": [
+    "10nH",
+    "10nH",
+    "10nH"
+  ],
+  "q3d_capacitance": [
+    0,
+    0,
+    0
+  ],
+  "q3d_resistance": [
+    0,
+    0,
+    0
+  ],
+  "q3d_mesh_kw_jj": [
+    7e-06,
+    7e-06,
+    7e-06
+  ],
+  "gds_cell_name": [
+    "my_other_junction",
+    "my_other_junction",
+    "my_other_junction"
+  ],
+  "coupling_arm": [
+    "False",
+    "False",
+    "False"
+  ],
+  "jj_taper_r": [
+    "30um",
+    "30um",
+    "30um"
+  ],
+  "coupling_pad_r": [
+    0.035,
+    0.035,
+    0.04
+  ],
+  "coupling_gd": [
+    {},
+    "650um",
+    {}
+  ]
+}

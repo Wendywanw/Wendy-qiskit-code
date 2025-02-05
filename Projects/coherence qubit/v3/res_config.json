@@ -1,0 +1,143 @@
+{
+  "chip": [
+    "main",
+    "main",
+    "main"
+  ],
+  "layer": [
+    5,
+    5,
+    5
+  ],
+  "pin_inputs": [
+    {
+      "start_pin": {
+        "component": "Q1",
+        "pin": "cpw_stub"
+      },
+      "end_pin": {
+        "component": "tee3",
+        "pin": "second_end"
+      }
+    },
+    {
+      "start_pin": {
+        "component": "Q2",
+        "pin": "cpw_stub"
+      },
+      "end_pin": {
+        "component": "tee2",
+        "pin": "second_end"
+      }
+    },
+    {
+      "start_pin": {
+        "component": "Q3",
+        "pin": "cpw_stub"
+      },
+      "end_pin": {
+        "component": "tee1",
+        "pin": "second_end"
+      }
+    }
+  ],
+  "fillet": [
+    "90um",
+    "80um",
+    "90um"
+  ],
+  "lead": [
+    {
+      "start_straight": "2100 um",
+      "end_straight": "400 um",
+      "start_jogged_extension": "",
+      "end_jogged_extension": ""
+    },
+    {
+      "start_straight": "2900 um",
+      "end_straight": "900 um",
+      "start_jogged_extension": "",
+      "end_jogged_extension": ""
+    },
+    {
+      "start_straight": "300 um",
+      "end_straight": "200 um",
+      "start_jogged_extension": "",
+      "end_jogged_extension": ""
+    }
+  ],
+  "total_length": [
+    "0.010061033791949876 m-700um",
+    "0.010975673546551568 m-700um",
+    "0.009287107827128471 m-1000um"
+  ],
+  "trace_width": [
+    "15 um",
+    "15 um",
+    "15 um"
+  ],
+  "meander": [
+    {
+      "spacing": "200um",
+      "asymmetry": "0um"
+    },
+    {
+      "spacing": "200um",
+      "asymmetry": "0um"
+    },
+    {
+      "spacing": "200um",
+      "asymmetry": "0um"
+    }
+  ],
+  "snap": [
+    "true",
+    "true",
+    "true"
+  ],
+  "prevent_short_edges": [
+    "true",
+    "true",
+    "true"
+  ],
+  "hfss_wire_bonds": [
+    false,
+    false,
+    false
+  ],
+  "q3d_wire_bonds": [
+    false,
+    false,
+    false
+  ],
+  "pin_width": [
+    "15 um",
+    "15 um",
+    "15 um"
+  ],
+  "gap_width": [
+    "8.3 um",
+    "8.3 um",
+    "8.3 um"
+  ],
+  "trace_gap": [
+    "8.3 um",
+    "8.3 um",
+    "8.3 um"
+  ],
+  "_actual_length": [
+    "9.361033791949875 mm",
+    "10.275673546551568 mm",
+    "8.287107827128471 mm"
+  ],
+  "Frequency": [
+    {},
+    {},
+    6.5
+  ],
+  "Target Frequency": [
+    6.0,
+    5.5,
+    6.5
+  ]
+}

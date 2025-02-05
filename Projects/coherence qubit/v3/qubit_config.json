@@ -1,0 +1,172 @@
+{
+  "cut_l": [
+    "600um+400um+400um",
+    "600um+400um+400um",
+    "450um+250um+250um"
+  ],
+  "cut_h": [
+    "1000um",
+    "1100um",
+    "650um"
+  ],
+  "gap": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "jj_gap": [
+    "3um",
+    "3um",
+    "3um"
+  ],
+  "jj_contact_size": [
+    "3um",
+    "3um",
+    "3um"
+  ],
+  "w": [
+    "400um",
+    "400um",
+    "250um"
+  ],
+  "l": [
+    "550um",
+    "880um",
+    "510um"
+  ],
+  "r": [
+    "400um/2",
+    "400um/2",
+    "250um/2"
+  ],
+  "cpw_l": [
+    "100um",
+    "150um",
+    "100um"
+  ],
+  "coupling_gap": [
+    "30um",
+    "30um",
+    "20um"
+  ],
+  "JJ_cutout_w": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "JJ_cutout_h": [
+    "70um",
+    "70um",
+    "70um"
+  ],
+  "JJ_cutout_r": [
+    "150um",
+    "150um",
+    "150um"
+  ],
+  "JJ_c_contact_l": [
+    "40um",
+    "40um",
+    "40um"
+  ],
+  "JJ_c_contact_r": [
+    "2.5um",
+    "2.5um",
+    "2.5um"
+  ],
+  "JJ_c_contact_w": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "JJ_c_contact_shortl": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "coupling_d": [
+    "80um",
+    "70um",
+    "70um"
+  ],
+  "coupling_pad_w": [
+    "100um",
+    "200um",
+    "100um"
+  ],
+  "coupling_stub_w": [
+    "90um",
+    "70um",
+    "90um"
+  ],
+  "coupling_r": [
+    "40um",
+    "40um",
+    "40um"
+  ],
+  "cpw_pin": [
+    "15 um",
+    "15 um",
+    "15 um"
+  ],
+  "chip": [
+    "main",
+    "main",
+    "main"
+  ],
+  "resolution": [
+    "10",
+    "10",
+    "10"
+  ],
+  "junction": [
+    "False",
+    "False",
+    "False"
+  ],
+  "orientation": [
+    "180",
+    "180",
+    "0"
+  ],
+  "istunnel": [
+    "False",
+    "False",
+    "False"
+  ],
+  "junction_taper_r": [
+    "10um",
+    "10um",
+    "10um"
+  ],
+  "layer": [
+    "5",
+    "5",
+    "5"
+  ],
+  "coupling_arm": [
+    "False",
+    "False",
+    "False"
+  ],
+  "jj_taper_r": [
+    "30um",
+    "30um",
+    "30um"
+  ],
+  "pos_x": [
+    "-900um",
+    "-1000um",
+    "-500um"
+  ],
+  "pos_y": [
+    "-700um",
+    "-2000um",
+    "1000um"
+  ],
+  "coupling_gd": [
+    {},
+    "650um",
+    {}
+  ]
+}

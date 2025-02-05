@@ -68,6 +68,9 @@ ab_layer = 31
 ab_square_layer = 30
 junction_area_layer = 60
 
+junction_bandage_layer = 299    
+junction_uc_layer = 699
+
 
 qb_options = dict(
 pad_pocket_distance_top = '39.1um',
