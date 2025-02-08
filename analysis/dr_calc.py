@@ -2,10 +2,9 @@ import scqubits as scq
 import numpy as np
 import astropy.units as u
 import astropy.constants as c
+import qiskit_metal.analyses as analyses
 
 from scipy.optimize import root_scalar
-
-import analysis.Transmon_property as tp
 
 import scipy.optimize as optimize
 
@@ -16,7 +15,6 @@ Sc = 67*u.fF/(u.um)**2 #JJ specific capacitance
 epsilon = 11.45
 W_jj = 200*u.nm #junction width
 Z0 = 50*u.Ohm #characteristic impedance
-import qiskit_metal.analyses as analyses
 
 ratio = 65
 Phi0 = (c.h / (2 * c.e.si))  # Flux quantum in Weber
@@ -50,7 +48,13 @@ def calculate_qubit_freq(L,ratio = ratio):
     anharmonicity = transition_frequencies[1] - transition_frequencies[0]
     return transition_frequencies[0]
     
-class TransmonQubit():
+class TransmonQubit:
+    """Represents a transmon qubit.
+
+    Calculates and stores parameters related to a transmon qubit,
+    including its frequency, capacitance, inductance, Josephson energy,
+    and charging energy.
+    """
     def __init__(self, freq, ratio):
         self.freq = freq
         self.ratio = ratio
@@ -104,6 +108,29 @@ class TransmonQubit():
             print("Root finding did not converge")
         c_optimal = inductance_to_cap(L_optimal*u.nH, ratio = ratio)
         return c_optimal, L_optimal*u.nH
+
+    def update_from_LC(self, capacitance, inductance):
+        """Update qubit parameters from given capacitance and inductance values.
+        
+        Args:
+            capacitance: Qubit capacitance with units
+            inductance: Qubit inductance with units
+        """
+        self.C = capacitance
+        self.L = inductance
+        
+        Phi0 = (c.h / (2 * c.e.si))  # Flux quantum in Weber
+        
+        # Update EJ and EC
+        self.EJ = (((Phi0/2/np.pi)**2/self.L).to(u.J)/c.h).to(u.GHz)
+        self.EC = (c.e.si**2 / (2 * self.C)/c.h).to(u.GHz)
+        
+        # Update ratio before calculating frequency
+        self.ratio = (self.EJ/self.EC).value
+        
+        # Update frequency and anharmonicity
+        self.calculate_qubit_freq()
+        
     def calculate_qubit_freq(self,):
         L = self.L
         ratio = self.ratio
@@ -126,7 +153,6 @@ class TransmonQubit():
         anharmonicity = transition_frequencies[1] - transition_frequencies[0]
         self.freq = transition_frequencies[0]*u.GHz
         self.alpha = anharmonicity*u.GHz
-        
 class ReadoutResonator():
     def __init__(self, freq, short_on_one_end = False,optimal_pin = None, optimal_gap = None ):
         self.freq = freq
