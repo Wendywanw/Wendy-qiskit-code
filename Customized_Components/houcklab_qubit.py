@@ -105,7 +105,8 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         junction = 'False',
         orientation = '0',
         istunnel = 'True', 
-        junction_taper_r = '10um',)
+        junction_taper_r = '10um',
+        )
     """Default options."""
 
     component_metadata = Dict(short_name='DiffRound',
