@@ -4,26 +4,49 @@ import numpy as np
 import astropy.units as u
 from qiskit_metal import Dict
 import analysis.Transmon_specifications as ts
+from qiskit_metal.analyses.quantization import EPRanalysis
+
 
 class HFSSHandler:
     """Class to handle HFSS simulations for qubit designs"""
     
-    def __init__(self, design, eig_all, components, renderer_hfss, hfss, nmodes = 1):
-        """Initialize the HFSS handler
+    def __init__(self, design, components, nmodes=2, Ljs=['13nH'], max_passes=30, min_passes=10, conv_threshold=0.1, wb_threshold='72um'):
+        """Initialize the HFSS handler and simulation
         
         Args:
             design: QiskitMetal design object
-            eig_all: Eigenmode simulation object
-            renderer_hfss: HFSS renderer
-            hfss: HFSS interface
+            components: List of components to simulate
+            nmodes: Number of modes to simulate (default: 2)
+            Ljs: List of junction inductances (default: ['13nH'])
+            max_passes: Maximum number of mesh refinement passes (default: 30)
+            min_passes: Minimum number of mesh refinement passes (default: 10)
+            conv_threshold: Convergence threshold in % (default: 0.1)
+            wb_threshold: Wavebox threshold (default: '72um')
         """
         self.design = design
-        self.eig_all = eig_all
-        self.renderer_hfss = renderer_hfss
-        self.hfss = hfss
         self.components = components
         self.nmodes = nmodes
         
+        # Initialize HFSS simulation
+        self.eig_all = EPRanalysis(self.design, 'hfss')
+        self.renderer_hfss = self.design.renderers.hfss
+        self.hfss = self.eig_all.sim.renderer
+        self.eig_all.sim.renderer.options['wb_threshold'] = wb_threshold
+
+        # Setup simulation parameters
+        self.eig_all.sim.setup.max_passes = max_passes
+        self.eig_all.sim.setup.min_passes = min_passes
+        self.eig_all.sim.setup.max_delta_f = conv_threshold
+        self.eig_all.sim.setup.n_modes = nmodes
+        self.eig_all.sim.renderer.options['x_buffer_width_mm'] = 0.5
+        self.eig_all.sim.renderer.options['y_buffer_width_mm'] = 0.5
+        
+        # Set junction parameters
+        for i, Lj in enumerate(Ljs):
+            self.eig_all.sim.setup.vars[f'Lj{i+1}'] = Lj
+            self.eig_all.sim.setup.vars[f'Cj{i+1}'] = f'{(ts.find_junction_capacitance(float(Lj[:-2])*u.nH)).to(u.fF).value}fF'
+        
+
         # Default simulation options
         self.default_options = {
             'max_mesh_length_jj': '7um',

@@ -3,7 +3,7 @@ import pandas as pd
 import numpy as np
 import astropy.units as u
 from qiskit_metal import Dict
-from qiskit_metal.analyses.quantization.lumped_capacitive import LOManalysis
+from qiskit_metal.analyses.quantization import LOManalysis
 
 class Q3DHandler:
     """Class to handle Q3D simulations for capacitance extraction"""
@@ -90,14 +90,15 @@ class Q3DHandler:
             return pd.DataFrame()
 
         # Store capacitance values
-        for i in range(len(cap_matrix)):
-            for j in range(len(cap_matrix[i])):
+        for i, col in enumerate(cap_matrix.columns):
+            for j, row in enumerate(cap_matrix.columns):
                 if i <= j:
-                    dat[f'C{i+1}{j+1} (fF)'] = cap_matrix[i][j] * 1e15
+                    dat[f'C{i+1}{j+1} (fF)'] = cap_matrix[col][row]
+
                     
         # Store simulation parameters
-        dat['substrate_height'] = self.renderer_q3d.options['substrate_height']
-        dat['gap'] = self.renderer_q3d.options['gap']
+        # dat['substrate_height'] = self.renderer_q3d.options['substrate_height']
+        # dat['gap'] = self.renderer_q3d.options['gap']
         
         # Create and save dataframe
         data = pd.DataFrame(dat, index=[0])

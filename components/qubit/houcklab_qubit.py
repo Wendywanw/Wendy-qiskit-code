@@ -108,8 +108,11 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         junction = 'False',
         orientation = '0',
         istunnel = 'True', 
-        junction_taper_r = '10um',)
+        junction_taper_r = '10um',
+        junction_taper = 'True',
+    )
     """Default options."""
+
 
     component_metadata = Dict(short_name='DiffRound',
                               _qgeometry_table_poly='True',
@@ -330,7 +333,12 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         taper_right = draw.translate(taper_right, junction_location+gap/2-jj_contact_width/2, 0)
 
         # #rotate and translate
-        connector_pad = draw.union([coupling_pad, cpw_stub, taper_left, taper_right])
+        if p.junction_taper == 'True':
+            connector_pad = draw.union([coupling_pad, cpw_stub, taper_left, taper_right])
+        else:
+            connector_pad = draw.union([coupling_pad, cpw_stub])
+        
+
         if p.coupling_arm == 'False':
             pass
         else:
@@ -343,8 +351,13 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
         else:
             pass
         jj_x, jj_y = self.get_jj_location0()
-        rect_jj = draw.LineString([(jj_x-jj_gap/2, +jj_y), 
-                                   (jj_x+jj_gap/2, jj_y)])
+        if p.junction_taper == 'True':
+            rect_jj = draw.LineString([(jj_x-jj_gap/2, +jj_y), 
+                                    (jj_x+jj_gap/2, jj_y)])
+        else:
+            rect_jj = draw.LineString([(jj_x-gap/2, +jj_y), 
+                                    (jj_x+gap/2, jj_y)])
+
         polys = [pad_right, pad_left, connector_pad, rect_jj, cutout_pad]
         polys = draw.rotate(polys, p.orientation, origin=(0, 0))
         polys = draw.translate(polys, p.pos_x, p.pos_y)
@@ -369,11 +382,13 @@ class DiffTransmonRounded(BaseQubit):  # pylint: disable=invalid-name
                            chip=chip, 
                            subtract=True)
         # print(p.junction)
-        if p.junction == 'False' or p.junction == False:
+        if (p.junction == 'False' or p.junction == False):
             self.add_qgeometry('junction',
-                           dict(rect_jj=polys[3]),
-                           width=min(jj_contact_width,0.003),
-                           chip=chip)
+                            dict(rect_jj=polys[3]),
+                            width=min(jj_contact_width,0.003),
+                            chip=chip)
+
+        
             # print('junction added')
         
         # self.add_qgeometry('poly',
